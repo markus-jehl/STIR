@@ -849,6 +849,7 @@ namespace std {
 //%shared_ptr(stir::Array<1,float>);
 %shared_ptr(stir::Array<2,float>);
 %shared_ptr(stir::Array<3,float>);
+%shared_ptr(stir::Array<4,float>);
 %shared_ptr(stir::DiscretisedDensity<3,float>);
 %shared_ptr(stir::DiscretisedDensityOnCartesianGrid<3,float>);
 %shared_ptr(stir::VoxelsOnCartesianGrid<float>);
