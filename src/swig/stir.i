@@ -100,9 +100,9 @@
 #include "stir/SeparableGaussianImageFilter.h"
 #include "stir/SeparableConvolutionImageFilter.h"
 
-#ifdef HAVE_JSON
+//#ifdef HAVE_JSON
 #include "stir/HUToMuImageProcessor.h"
-#endif
+//#endif
 
 #include "stir/recon_buildblock/PoissonLogLikelihoodWithLinearModelForMeanAndProjData.h" 
 #include "stir/OSMAPOSL/OSMAPOSLReconstruction.h"
@@ -132,6 +132,7 @@
 
 #include "stir/multiply_crystal_factors.h"
 #include "stir/ML_norm.h"
+#include "stir/spatial_transformation/InvertAxis.h"
 
 #include "stir/scatter/ScatterEstimation.h"
 #include "stir/scatter/ScatterSimulation.h"
@@ -1628,12 +1629,12 @@ namespace stir {
         stir::DataProcessor<DiscretisedDensity<3,elemT> > >)
 %shared_ptr(stir::SeparableConvolutionImageFilter<elemT>)
 
-#ifdef HAVE_JSON
+//#ifdef HAVE_JSON
 %shared_ptr(stir::RegisteredParsingObject<stir::HUToMuImageProcessor<DiscretisedDensity<3,elemT> >,
 	    stir::DataProcessor<DiscretisedDensity<3,elemT> >,
 	    stir::DataProcessor<DiscretisedDensity<3,elemT> > >)
 %shared_ptr(stir::HUToMuImageProcessor<DiscretisedDensity<3,elemT> >)
-#endif
+//#endif
 #undef elemT
 #endif
 
@@ -1642,9 +1643,9 @@ namespace stir {
 %include "stir/SeparableCartesianMetzImageFilter.h"
 %include "stir/SeparableGaussianImageFilter.h"
 %include "stir/SeparableConvolutionImageFilter.h"
-#ifdef HAVE_JSON
+//#ifdef HAVE_JSON
 %include "stir/HUToMuImageProcessor.h"
-#endif
+//#endif
 
 #define elemT float
 %template(DataProcessor3DFloat) stir::DataProcessor<stir::DiscretisedDensity<3,elemT> >;
@@ -1672,14 +1673,14 @@ stir::DataProcessor<DiscretisedDensity<3,elemT> > >;
 stir::DataProcessor<DiscretisedDensity<3,elemT> > >;
 %template(SeparableConvolutionImageFilter3DFloat) stir::SeparableConvolutionImageFilter<elemT>;
 
-#ifdef HAVE_JSON
+//#ifdef HAVE_JSON
 %template(RPHUToMuImageProcessor3DFloat) stir::RegisteredParsingObject<
              stir::HUToMuImageProcessor<DiscretisedDensity<3,elemT> >,
              stir::DataProcessor<DiscretisedDensity<3,elemT> >,
              stir::DataProcessor<DiscretisedDensity<3,elemT> > >;
 
 %template(HUToMuImageProcessor3DFloat) stir::HUToMuImageProcessor<DiscretisedDensity<3,elemT> >;
-#endif
+//#endif
 #undef elemT
 
 %include "stir/GeneralisedPoissonNoiseGenerator.h"
@@ -1991,6 +1992,9 @@ void multiply_crystal_factors(stir::ProjData& proj_data, const stir::Array<2,flo
 %shared_ptr(stir::FanProjData);
 %shared_ptr(stir::GeoData3D);
 %include "stir/ML_norm.h"
+
+%shared_ptr(stir::InvertAxis);
+%include "stir/spatial_transformation/InvertAxis.h"
 
 #ifdef HAVE_parallelproj
 %shared_ptr(stir::RegisteredParsingObject<stir::ForwardProjectorByBinParallelproj,
