@@ -99,9 +99,10 @@ option(DISABLE_Parallelproj_PROJECTOR "disable use of Parallelproj projector" OF
 
 if(NOT DISABLE_ITK)
    # See if we can find a compiled version of ITK (http://www.itk.org/)
-   find_package(ITK 4.9 QUIET)
+   find_package(ITK 4.9)
    if (ITK_FOUND)
       include(${ITK_USE_FILE})
+      set(HAVE_ITK ON)
    endif()
 endif()
 
