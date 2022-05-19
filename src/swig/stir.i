@@ -128,6 +128,7 @@
 
 #include "stir/recon_buildblock/ProjectorByBinPair.h"
 #include "stir/recon_buildblock/ProjectorByBinPairUsingProjMatrixByBin.h"
+#include "stir/recon_buildblock/ProjectorByBinPairUsingSeparateProjectors.h"
 
 #include "stir/analytic/FBP2D/FBP2DReconstruction.h"
 #include "stir/analytic/FBP3DRP/FBP3DRPReconstruction.h"
@@ -1949,6 +1950,16 @@ stir::RegisteredParsingObject< stir::LogcoshPrior<elemT>,
               stir::ProjectorByBinPair,
               stir::ProjectorByBinPair>;
 %include "stir/recon_buildblock/ProjectorByBinPairUsingProjMatrixByBin.h"
+RegisteredParsingObject<
+        stir::ProjectorByBinPairUsingSeparateProjectors,
+              stir::ProjectorByBinPair,
+              stir::ProjectorByBinPair>);
+%shared_ptr(stir::ProjectorByBinPairUsingSeparateProjectors)
+%template(internalRPProjectorByBinPairUsingSeparateProjectors) stir::RegisteredParsingObject<
+        stir::ProjectorByBinPairUsingSeparateProjectors,
+              stir::ProjectorByBinPair,
+              stir::ProjectorByBinPair>;
+%include "stir/recon_buildblock/ProjectorByBinPairUsingSeparateProjectors.h"
 
 %shared_ptr(stir::BinNormalisation);
 %shared_ptr(stir::RegisteredParsingObject<stir::BinNormalisationFromProjData, stir::BinNormalisation>);
