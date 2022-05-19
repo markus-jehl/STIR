@@ -1950,7 +1950,7 @@ stir::RegisteredParsingObject< stir::LogcoshPrior<elemT>,
               stir::ProjectorByBinPair,
               stir::ProjectorByBinPair>;
 %include "stir/recon_buildblock/ProjectorByBinPairUsingProjMatrixByBin.h"
-RegisteredParsingObject<
+%shared_ptr(stir::RegisteredParsingObject<
         stir::ProjectorByBinPairUsingSeparateProjectors,
               stir::ProjectorByBinPair,
               stir::ProjectorByBinPair>);
