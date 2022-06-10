@@ -117,6 +117,7 @@
 #ifdef STIR_WITH_Parallelproj_PROJECTOR
 #include "stir/recon_buildblock/Parallelproj_projector/ForwardProjectorByBinParallelproj.h"
 #include "stir/recon_buildblock/Parallelproj_projector/BackProjectorByBinParallelproj.h"
+#include "stir/recon_buildblock/Parallelproj_projector/ProjectorByBinPairUsingParallelproj.h"
 #endif
 
 #include "stir/recon_buildblock/ProjMatrixByBinUsingRayTracing.h"
@@ -1960,6 +1961,18 @@ stir::RegisteredParsingObject< stir::LogcoshPrior<elemT>,
               stir::ProjectorByBinPair,
               stir::ProjectorByBinPair>;
 %include "stir/recon_buildblock/ProjectorByBinPairUsingSeparateProjectors.h"
+#ifdef STIR_WITH_Parallelproj_PROJECTOR
+%shared_ptr(stir::RegisteredParsingObject<
+        stir::ProjectorByBinPairUsingParallelproj,
+              stir::ProjectorByBinPair,
+              stir::ProjectorByBinPair>);
+%shared_ptr(stir::ProjectorByBinPairUsingParallelproj)
+%template(internalRPProjectorByBinPairUsingParallelproj) stir::RegisteredParsingObject<
+        stir::ProjectorByBinPairUsingParallelproj,
+              stir::ProjectorByBinPair,
+              stir::ProjectorByBinPair>;
+%include "stir/recon_buildblock/Parallelproj_projector/ProjectorByBinPairUsingParallelproj.h"
+#endif
 
 %shared_ptr(stir::BinNormalisation);
 %shared_ptr(stir::RegisteredParsingObject<stir::BinNormalisationFromProjData, stir::BinNormalisation>);
