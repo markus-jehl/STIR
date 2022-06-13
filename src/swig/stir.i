@@ -103,6 +103,7 @@
 #include "stir/SeparableCartesianMetzImageFilter.h"
 #include "stir/SeparableGaussianImageFilter.h"
 #include "stir/SeparableConvolutionImageFilter.h"
+#include "stir/TruncateToCylindricalFOVImageProcessor.h"
 
 //#ifdef HAVE_JSON
 #include "stir/HUToMuImageProcessor.h"
@@ -1650,6 +1651,11 @@ namespace stir {
         stir::DataProcessor<DiscretisedDensity<3,elemT> > >)
 %shared_ptr(stir::SeparableConvolutionImageFilter<elemT>)
 
+%shared_ptr(stir::RegisteredParsingObject<stir::TruncateToCylindricalFOVImageProcessor<elemT>,
+        stir::DataProcessor<DiscretisedDensity<3,elemT> >,
+        stir::DataProcessor<DiscretisedDensity<3,elemT> > >)
+%shared_ptr(stir::TruncateToCylindricalFOVImageProcessor<elemT>)
+
 //#ifdef HAVE_JSON
 %shared_ptr(stir::RegisteredParsingObject<stir::HUToMuImageProcessor<DiscretisedDensity<3,elemT> >,
 	    stir::DataProcessor<DiscretisedDensity<3,elemT> >,
@@ -1664,6 +1670,7 @@ namespace stir {
 %include "stir/SeparableCartesianMetzImageFilter.h"
 %include "stir/SeparableGaussianImageFilter.h"
 %include "stir/SeparableConvolutionImageFilter.h"
+%include "stir/TruncateToCylindricalFOVImageProcessor.h"
 //#ifdef HAVE_JSON
 %include "stir/HUToMuImageProcessor.h"
 //#endif
@@ -1693,6 +1700,12 @@ stir::DataProcessor<DiscretisedDensity<3,elemT> > >;
         stir::DataProcessor<DiscretisedDensity<3,elemT> >,
 stir::DataProcessor<DiscretisedDensity<3,elemT> > >;
 %template(SeparableConvolutionImageFilter3DFloat) stir::SeparableConvolutionImageFilter<elemT>;
+
+%template(RPTruncateToCylindricalFOVImageProcessor3DFloat) stir::RegisteredParsingObject<
+        stir::TruncateToCylindricalFOVImageProcessor<elemT>,
+        stir::DataProcessor<DiscretisedDensity<3,elemT> >,
+stir::DataProcessor<DiscretisedDensity<3,elemT> > >;
+%template(TruncateToCylindricalFOVImageProcessor3DFloat) stir::TruncateToCylindricalFOVImageProcessor<elemT>;
 
 //#ifdef HAVE_JSON
 %template(RPHUToMuImageProcessor3DFloat) stir::RegisteredParsingObject<
@@ -1961,7 +1974,7 @@ stir::RegisteredParsingObject< stir::LogcoshPrior<elemT>,
               stir::ProjectorByBinPair,
               stir::ProjectorByBinPair>;
 %include "stir/recon_buildblock/ProjectorByBinPairUsingSeparateProjectors.h"
-#ifdef STIR_WITH_Parallelproj_PROJECTOR
+#ifdef HAVE_parallelproj
 %shared_ptr(stir::RegisteredParsingObject<
         stir::ProjectorByBinPairUsingParallelproj,
               stir::ProjectorByBinPair,
@@ -1972,6 +1985,23 @@ stir::RegisteredParsingObject< stir::LogcoshPrior<elemT>,
               stir::ProjectorByBinPair,
               stir::ProjectorByBinPair>;
 %include "stir/recon_buildblock/Parallelproj_projector/ProjectorByBinPairUsingParallelproj.h"
+
+%shared_ptr(stir::RegisteredParsingObject<stir::ForwardProjectorByBinParallelproj,
+    stir::ForwardProjectorByBin>);
+%shared_ptr(stir::ForwardProjectorByBinParallelproj);
+%shared_ptr(stir::RegisteredParsingObject<stir::BackProjectorByBinParallelproj,
+    stir::BackProjectorByBin>);
+%shared_ptr(stir::BackProjectorByBinParallelproj);
+
+%template (internalRPForwardProjectorByBinParallelproj)  
+  stir::RegisteredParsingObject<stir::ForwardProjectorByBinParallelproj,
+     stir::ForwardProjectorByBin>;
+%include "stir/recon_buildblock/Parallelproj_projector/ForwardProjectorByBinParallelproj.h"
+
+%template (internalRPBackProjectorByBinParallelproj)  
+  stir::RegisteredParsingObject<stir::BackProjectorByBinParallelproj,
+     stir::BackProjectorByBin>;
+%include "stir/recon_buildblock/Parallelproj_projector/BackProjectorByBinParallelproj.h"
 #endif
 
 %shared_ptr(stir::BinNormalisation);
@@ -2039,21 +2069,3 @@ void multiply_crystal_factors(stir::ProjData& proj_data, const stir::Array<2,flo
 %shared_ptr(stir::InvertAxis);
 %include "stir/spatial_transformation/InvertAxis.h"
 
-#ifdef HAVE_parallelproj
-%shared_ptr(stir::RegisteredParsingObject<stir::ForwardProjectorByBinParallelproj,
-    stir::ForwardProjectorByBin>);
-%shared_ptr(stir::ForwardProjectorByBinParallelproj);
-%shared_ptr(stir::RegisteredParsingObject<stir::BackProjectorByBinParallelproj,
-    stir::BackProjectorByBin>);
-%shared_ptr(stir::BackProjectorByBinParallelproj);
-
-%template (internalRPForwardProjectorByBinParallelproj)  
-  stir::RegisteredParsingObject<stir::ForwardProjectorByBinParallelproj,
-     stir::ForwardProjectorByBin>;
-%include "stir/recon_buildblock/Parallelproj_projector/ForwardProjectorByBinParallelproj.h"
-
-%template (internalRPBackProjectorByBinParallelproj)  
-  stir::RegisteredParsingObject<stir::BackProjectorByBinParallelproj,
-     stir::BackProjectorByBin>;
-%include "stir/recon_buildblock/Parallelproj_projector/BackProjectorByBinParallelproj.h"
-#endif
