@@ -134,7 +134,9 @@ class Scanner
   enum Type {E931, E951, E953, E921, E925, E961, E962, E966, E1080, Siemens_mMR,Siemens_mCT, RPT,HiDAC,
 	     Advance, DiscoveryLS, DiscoveryST, DiscoverySTE, DiscoveryRX, Discovery600, PETMR_Signa,
 	     Discovery690, DiscoveryMI3ring, DiscoveryMI4ring, DiscoveryMI5ring,
-	     HZLR, RATPET, PANDA, HYPERimage, nanoPET, HRRT, Allegro, GeminiTF, SAFIRDualRingPrototype, User_defined_scanner,
+         HZLR, RATPET, PANDA, HYPERimage, nanoPET, HRRT, Allegro, GeminiTF, SAFIRDualRingPrototype,
+             UPENN_5rings, UPENN_5rings_no_gaps, UPENN_6rings, UPENN_6rings_no_gaps,
+         User_defined_scanner,
 	     Unknown_scanner};
 
   virtual ~Scanner() {}
@@ -161,7 +163,6 @@ class Scanner
           int num_detector_layers_v,
           float energy_resolution_v = -1.0f,
           float reference_energy_v = -1.0f,
-          const std::string& scanner_orientation_v = "X",
           const std::string& scanner_geometry_v = "Cylindrical",
           float axial_crystal_spacing_v = -1.0f,
           float transaxial_crystal_spacing_v = -1.0f,
@@ -187,7 +188,6 @@ class Scanner
           int num_detector_layers_v,
           float energy_resolution_v = -1.0f,
           float reference_energy_v = -1.0f,
-          const std::string& scanner_orientation_v = "X",
           const std::string& scanner_geometry_v = "Cylindrical",
           float axial_crystal_spacing_v = -1.0f,
           float transaxial_crystal_spacing_v = -1.0f,
@@ -319,8 +319,6 @@ class Scanner
 
   //! \name functions to get block geometry info
   //@{
-  //! get scanner orientation
-  inline std::string get_scanner_orientation() const;
   //! get scanner geometry
   inline std::string get_scanner_geometry() const;
   //! get crystal spacing in axial direction
@@ -397,8 +395,6 @@ class Scanner
   // TODO accomodate more complex geometries of singles units.
   //@{
   //! name functions to set block geometry info
-  //! set scanner orientation
-  inline void set_scanner_orientation(const std::string& new_scanner_orientation);
   //! set scanner geometry
   /*! Will also read the detector map from file if the geometry is \c Generic */
   void set_scanner_geometry(const std::string& new_scanner_geometry);
@@ -500,7 +496,6 @@ private:
   //! \brief scanner info needed for block geometry
   //! \author Parisa Khateri
   //! A negative value indicates unknown.
-  std::string scanner_orientation;       /*! scanner orientation */
   std::string scanner_geometry;          /*! scanner geometry */
   float axial_crystal_spacing;           /*! crystal pitch in axial direction in mm*/
   float transaxial_crystal_spacing;      /*! crystal pitch in transaxial direction in mm*/
@@ -532,7 +527,6 @@ private:
                   int num_detector_layers_v,
                   float energy_resolution_v = -1.0f,
                   float reference_energy = -1.0f,
-                  const std::string& scanner_orientation_v = "",
                   const std::string& scanner_geometry_v = "",
                   float axial_crystal_spacing_v = -1.0f,
                   float transaxial_crystal_spacing_v = -1.0f,
@@ -557,7 +551,6 @@ private:
                   int num_detector_layers_v,
                   float energy_resolution_v = -1.0f,
                   float reference_energy = -1.0f,
-                  const std::string& scanner_orientation_v = "",
                   const std::string& scanner_geometry_v = "",
                   float axial_crystal_spacing_v = -1.0f,
                   float transaxial_crystal_spacing_v = -1.0f,

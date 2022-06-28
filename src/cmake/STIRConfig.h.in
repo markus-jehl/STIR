@@ -53,6 +53,8 @@ namespace stir {
 
 #cmakedefine HAVE_CERN_ROOT
 
+#cmakedefine HAVE_UPENN
+
 #cmakedefine HAVE_AVW
 
 #cmakedefine HAVE_RDF
@@ -88,5 +90,6 @@ namespace stir {
 #endif
 
 #cmakedefine STIR_PROJECTORS_AS_V3
+#cmakedefine STIR_ROOT_ROTATION_AS_V4
 #cmakedefine STIR_LEGACY_IGNORE_VIEW_OFFSET
 #endif //  __stir_config__H__

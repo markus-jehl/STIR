@@ -542,7 +542,6 @@ break;
              1, //num_detector_layers_v
              -1, //energy_resolution_v
              -1, //reference_energy_v
-             "", //scanner_orientation_v
              "", //scanner_geometry_v
              2.2, //axial_crystal_spacing_v
              2.2, //transaxial_crystal_spacing_v
@@ -551,6 +550,106 @@ break;
              ""//crystal_map_file_name_v
             );  
   break;
+
+  case UPENN_5rings:
+    set_params(UPENN_5rings, string_list("UPENN_5rings"),
+               (40+16)*5,
+               331, 331,
+               576+18,
+               382.0F, 7.0F,
+               3.9655, 2.0F,
+               static_cast<float>(0),
+               7,     //            int num_axial_blocks_per_bucket_v,
+               4,     //            int num_transaxial_blocks_per_bucket_v,
+               8,  //            int num_axial_crystals_per_block_v,
+               8, //            int num_transaxial_crystals_per_block_v,
+               8*7,  //            int num_axial_crystals_per_singles_unit_v,
+               8 * 4, // +1 gap     //            int num_transaxial_crystals_per_singles_unit_v,
+               1,
+               0.109F, 511.F
+           #ifdef STIR_TOF
+               ,
+               (short int)(512),
+               (float)(19.53125),
+               (float)(272.55F)
+           #endif
+);
+    break;
+
+case UPENN_6rings:
+    set_params(UPENN_6rings, string_list("UPENN_6rings"),
+               (40+16)*6,
+               331, 331,
+               576+18,
+               382.0F, 7.0F,
+               3.9655, 2.02035F,
+               static_cast<float>(0),
+               7 * 6,     //            int num_axial_blocks_per_bucket_v,
+               1,     //            int num_transaxial_blocks_per_bucket_v,
+               8,  //            int num_axial_crystals_per_block_v,
+               33, //            int num_transaxial_crystals_per_block_v,
+               8,  //            int num_axial_crystals_per_singles_unit_v,
+               33, //int num_transaxial_crystals_per_singles_unit_v,
+               1,
+               0.109F, 511.F
+           #ifdef STIR_TOF
+               ,
+               (short int)(512),
+               (float)(19.53125),
+               (float)(272.55F)
+           #endif
+);
+    break;
+
+  case UPENN_5rings_no_gaps:
+    set_params(UPENN_5rings_no_gaps, string_list("UPENN_5rings_no_gaps"),
+               40*5,
+               301, 301,
+               576,
+               382.0F, 7.0F,
+               3.9655, 2.08349F,
+               static_cast<float>(0),
+               7 * 5,     //            int num_axial_blocks_per_bucket_v,
+               4,     //            int num_transaxial_blocks_per_bucket_v,
+               8,  //            int num_axial_crystals_per_block_v,
+               8, //            int num_transaxial_crystals_per_block_v,
+               8,  //            int num_axial_crystals_per_singles_unit_v,
+               8 * 4,  //            int num_transaxial_crystals_per_singles_unit_v,
+               1,
+               0.109F, 511.F
+           #ifdef STIR_TOF
+               ,
+               (short int)(512),
+               (float)(19.53125),
+               (float)(272.55F)
+           #endif
+);
+    break;
+
+  case UPENN_6rings_no_gaps:
+    set_params(UPENN_6rings_no_gaps, string_list("UPENN_6rings_no_gaps"),
+               40 * 6,
+               321, 321,
+               576,
+               382.0F, 7.0F,
+               3.9655, 2.08F,
+               static_cast<float>(0),
+               5 * 6,     //            int num_axial_blocks_per_bucket_v,
+               4,     //            int num_transaxial_blocks_per_bucket_v,
+               8,  //            int num_axial_crystals_per_block_v,
+               8, //            int num_transaxial_crystals_per_block_v,
+               8,  //            int num_axial_crystals_per_singles_unit_v,
+               8,  //            int num_transaxial_crystals_per_singles_unit_v,
+               1,
+               0.109F, 511.F
+           #ifdef STIR_TOF
+               ,
+               (short int)(512),
+               (float)(19.53125),
+               (float)(272.55F)
+           #endif
+);
+    break;
   
   case User_defined_scanner: // zlong, 08-04-2004, Userdefined support
 
@@ -588,7 +687,6 @@ Scanner::Scanner(Type type_v, const list<string>& list_of_names_v,
                  int num_detector_layers_v,
                  float energy_resolution_v,
                  float reference_energy_v,
-                 const string& scanner_orientation_v,
                  const string& scanner_geometry_v,
                  float axial_crystal_spacing_v,
                  float transaxial_crystal_spacing_v,
@@ -611,7 +709,6 @@ Scanner::Scanner(Type type_v, const list<string>& list_of_names_v,
              num_detector_layers_v,
              energy_resolution_v,
              reference_energy_v,
-             scanner_orientation_v,
              scanner_geometry_v,
              axial_crystal_spacing_v,
              transaxial_crystal_spacing_v,
@@ -635,7 +732,6 @@ Scanner::Scanner(Type type_v, const string& name,
                  int num_detector_layers_v,
                  float energy_resolution_v,
                  float reference_energy_v,
-                 const string& scanner_orientation_v,
                  const string& scanner_geometry_v,
                  float axial_crystal_spacing_v,
                  float transaxial_crystal_spacing_v,
@@ -658,7 +754,6 @@ Scanner::Scanner(Type type_v, const string& name,
              num_detector_layers_v,
              energy_resolution_v,
              reference_energy_v,
-             scanner_orientation_v,
              scanner_geometry_v,
              axial_crystal_spacing_v,
              transaxial_crystal_spacing_v,
@@ -690,7 +785,6 @@ set_params(Type type_v,const list<string>& list_of_names_v,
            int num_detector_layers_v,
            float energy_resolution_v,
            float reference_energy_v,
-           const string& scanner_orientation_v,
            const string& scanner_geometry_v,
            float axial_crystal_spacing_v,
            float transaxial_crystal_spacing_v,
@@ -712,7 +806,6 @@ set_params(Type type_v,const list<string>& list_of_names_v,
 	     num_detector_layers_v,
              energy_resolution_v,
              reference_energy_v,
-             scanner_orientation_v,
              scanner_geometry_v,
              axial_crystal_spacing_v,
              transaxial_crystal_spacing_v,
@@ -740,7 +833,6 @@ set_params(Type type_v,const list<string>& list_of_names_v,
            int num_detector_layers_v,
            float energy_resolution_v,
            float reference_energy_v,
-           const string& scanner_orientation_v,
            const string& scanner_geometry_v,
            float axial_crystal_spacing_v,
            float transaxial_crystal_spacing_v,
@@ -772,8 +864,6 @@ set_params(Type type_v,const list<string>& list_of_names_v,
       reference_energy = 511.f;
   else
       reference_energy = reference_energy_v;
-  
-  scanner_orientation = scanner_orientation_v;
   
   axial_crystal_spacing = axial_crystal_spacing_v;
   transaxial_crystal_spacing = transaxial_crystal_spacing_v;
@@ -868,6 +958,8 @@ get_num_virtual_transaxial_crystals_per_block() const
     case E1080:
     case Siemens_mCT:
     case Siemens_mMR:
+    case UPENN_5rings:
+    case UPENN_6rings:
       return 1;
     default:
       return 0;
@@ -913,7 +1005,7 @@ check_consistency() const
 	  get_num_transaxial_blocks() *
 	  get_num_transaxial_crystals_per_block();
     // exclusion of generic as 'get_num_transaxial_crystals_per_block()' is sometimes false for asymmetric detectors and not important for generic
-	if ( dets_per_ring != get_num_detectors_per_ring() && scanner_orientation != "Generic")
+	if ( dets_per_ring != get_num_detectors_per_ring() && scanner_geometry != "Generic")
 	  { 
 	    warning("Scanner %s: inconsistent transaxial block info",
 		    this->get_name().c_str()); 
@@ -932,7 +1024,7 @@ check_consistency() const
 	  get_num_transaxial_buckets() *
 	  get_num_transaxial_blocks_per_bucket();
     // exclusion of generic as 'get_num_transaxial_blocks_per_bucket()' is sometimes false for asymmetric detectors and not important for generic
-	if ( blocks_per_ring != get_num_transaxial_blocks() && scanner_orientation != "Generic")
+	if ( blocks_per_ring != get_num_transaxial_blocks() && scanner_geometry != "Generic")
 	  { 
 	    warning("Scanner %s: inconsistent transaxial block/bucket info",
 		    this->get_name().c_str()); 
@@ -952,7 +1044,7 @@ check_consistency() const
 	  get_num_axial_crystals_per_block();
 
 	// exclusion of generic as 'get_num_axial_crystals_per_block()' is sometimes false for asymmetric detectors and not important for generic
-  if ( dets_axial != (get_num_rings() + get_num_virtual_axial_crystals_per_block())  && scanner_orientation != "Generic")
+  if ( dets_axial != (get_num_rings() + get_num_virtual_axial_crystals_per_block())  && scanner_geometry != "Generic")
 	  { 
 	    warning("Scanner %s: inconsistent axial block info: %d vs %d",
 		    this->get_name().c_str(),
@@ -972,7 +1064,7 @@ check_consistency() const
 	  get_num_axial_buckets() *
 	  get_num_axial_blocks_per_bucket();
     // exclusion of generic as 'get_num_axial_blocks_per_bucket()' is sometimes false for asymmetric detectors and not important for generic
-	if ( blocks_axial != get_num_axial_blocks() && scanner_orientation != "Generic")
+	if ( blocks_axial != get_num_axial_blocks() && scanner_geometry != "Generic")
 	  { 
 	    warning("Scanner %s: inconsistent axial block/bucket info",
 		    this->get_name().c_str()); 
@@ -1048,9 +1140,9 @@ check_consistency() const
               get_transaxial_crystal_spacing(), get_num_transaxial_crystals_per_block(), get_transaxial_block_spacing());
           return Succeeded::no;
         }
-  
-        if (get_transaxial_block_spacing()*get_num_transaxial_blocks_per_bucket()
-            < round (2*inner_ring_radius*tan(_PI/get_num_transaxial_blocks()/get_num_transaxial_blocks_per_bucket())*1000.0)/1000.0)
+        
+        if (round(get_transaxial_block_spacing()*get_num_transaxial_blocks_per_bucket()*1000.0)/1000.0
+            < round (2*inner_ring_radius*tan(_PI/2/get_num_transaxial_buckets())*1000.0)/1000.0)
       {
          warning("Scanner %s: inconsistent transaxial spacing:\n"
               "\ttransaxial_block_spacing %f muliplied by num_transaxial_blocks_per_bucket %d should fit into a polygon that encircles a cylinder with inner_ring_radius %f",
@@ -1198,11 +1290,6 @@ Scanner::parameter_info() const
     s << "Scanner geometry (BlocksOnCylindrical/Cylindrical/Generic)  := "
       <<get_scanner_geometry() << '\n';
   }
-  if (get_scanner_orientation() != "")
-  {
-    s << "Scanner orientation (X or Y)                                := "
-      <<get_scanner_orientation() << '\n';
-  }
   if (get_axial_crystal_spacing() >=0)
     s << "Distance between crystals in axial direction (cm)           := "
       << get_axial_crystal_spacing()/10 << '\n';
@@ -1339,8 +1426,6 @@ Scanner* Scanner::ask_parameters()
       int num_detector_layers =
     ask_num("Enter number of detector layers per block: ",1,100,1);
            
-      const string ScannerOrientation =
-  ask_string("Enter the scanner orientation, i.e. which axis passes through two opposite blocks ('X' or 'Y')", "Y");
       const string ScannerGeometry =
   ask_string("Enter the scanner geometry ( BlocksOnCylindrical / Cylindrical / Generic ) :", "Cylindrical");
       
@@ -1373,7 +1458,6 @@ Scanner* Scanner::ask_parameters()
                         num_detector_layers,
                         EnergyResolution,
                         ReferenceEnergy,
-                        ScannerOrientation,
                         ScannerGeometry,
                         TransaxialCrystalSpacing,
                         AxialCrystalSpacing,
