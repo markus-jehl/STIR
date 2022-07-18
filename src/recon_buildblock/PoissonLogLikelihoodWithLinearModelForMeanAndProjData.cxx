@@ -863,15 +863,15 @@ actual_add_multiplication_with_approximate_sub_Hessian_without_penalty(TargetT& 
   // note: older versions of openmp need an int as loop
   for (int i=0; i<static_cast<int>(vs_nums_to_process.size()); ++i)
       {
-#ifdef STIR_OPENMP
-          const int thread_num = omp_get_thread_num();
-          info(boost::format("Thread %d/%d calculating segment_num: %d, view_num: %d")
-               % thread_num % omp_get_num_threads()
-               % vs_nums_to_process[i].segment_num() % vs_nums_to_process[i].view_num(), 2);
-#else
-          info(boost::format("calculating segment_num: %d, view_num: %d")
-               % vs_nums_to_process[i].segment_num() % vs_nums_to_process[i].view_num(), 2);
-#endif
+// #ifdef STIR_OPENMP
+//           const int thread_num = omp_get_thread_num();
+//           info(boost::format("Thread %d/%d calculating segment_num: %d, view_num: %d")
+//                % thread_num % omp_get_num_threads()
+//                % vs_nums_to_process[i].segment_num() % vs_nums_to_process[i].view_num(), 2);
+// #else
+//           info(boost::format("calculating segment_num: %d, view_num: %d")
+//                % vs_nums_to_process[i].segment_num() % vs_nums_to_process[i].view_num(), 2);
+// #endif
           const ViewSegmentNumbers view_segment_num=vs_nums_to_process[i];
 
           // first compute data-term: y*norm^2
@@ -989,15 +989,15 @@ actual_accumulate_sub_Hessian_times_input_without_penalty(TargetT& output,
 #endif
   for (int i=0; i<static_cast<int>(vs_nums_to_process.size()); ++i)
   {  // Loop over eah of the viewgrams in input_viewgrams_vec, forward projecting input into them
-#ifdef STIR_OPENMP
-    const int thread_num = omp_get_thread_num();
-    info(boost::format("Thread %d/%d calculating segment_num: %d, view_num: %d")
-         % thread_num % omp_get_num_threads()
-         % vs_nums_to_process[i].segment_num() % vs_nums_to_process[i].view_num(), 2);
-#else
-    info(boost::format("calculating segment_num: %d, view_num: %d")
-         % vs_nums_to_process[i].segment_num() % vs_nums_to_process[i].view_num(), 2);
-#endif
+// #ifdef STIR_OPENMP
+//     const int thread_num = omp_get_thread_num();
+//     info(boost::format("Thread %d/%d calculating segment_num: %d, view_num: %d")
+//          % thread_num % omp_get_num_threads()
+//          % vs_nums_to_process[i].segment_num() % vs_nums_to_process[i].view_num(), 2);
+// #else
+//     info(boost::format("calculating segment_num: %d, view_num: %d")
+//          % vs_nums_to_process[i].segment_num() % vs_nums_to_process[i].view_num(), 2);
+// #endif
     input_viewgrams_vec[i] = this->get_proj_data().get_empty_related_viewgrams(vs_nums_to_process[i], symmetries_sptr);
     this->get_projector_pair().get_forward_projector_sptr()->forward_project(input_viewgrams_vec[i]);
   }
@@ -1011,15 +1011,15 @@ actual_accumulate_sub_Hessian_times_input_without_penalty(TargetT& output,
 #endif
   for (int i = 0; i < static_cast<int>(vs_nums_to_process.size()); ++i)
   {
-#ifdef STIR_OPENMP
-    const int thread_num = omp_get_thread_num();
-    info(boost::format("Thread %d/%d calculating segment_num: %d, view_num: %d")
-         % thread_num % omp_get_num_threads()
-         % vs_nums_to_process[i].segment_num() % vs_nums_to_process[i].view_num(), 2);
-#else
-    info(boost::format("calculating segment_num: %d, view_num: %d")
-         % vs_nums_to_process[i].segment_num() % vs_nums_to_process[i].view_num(), 2);
-#endif
+// #ifdef STIR_OPENMP
+//     const int thread_num = omp_get_thread_num();
+//     info(boost::format("Thread %d/%d calculating segment_num: %d, view_num: %d")
+//          % thread_num % omp_get_num_threads()
+//          % vs_nums_to_process[i].segment_num() % vs_nums_to_process[i].view_num(), 2);
+// #else
+//     info(boost::format("calculating segment_num: %d, view_num: %d")
+//          % vs_nums_to_process[i].segment_num() % vs_nums_to_process[i].view_num(), 2);
+// #endif
     // Compute ybar_sq_viewgram = [ F(current_image_est) + additive ]^2
     RelatedViewgrams<float> ybar_sq_viewgram;
     {

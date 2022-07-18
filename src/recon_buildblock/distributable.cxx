@@ -474,15 +474,15 @@ void distributable_computation(
             }
 #else // STIR_MPI
 
-#ifdef STIR_OPENMP
-          const int thread_num=omp_get_thread_num();
-          info(boost::format("Thread %d/%d calculating segment_num: %d, view_num: %d")
-               % thread_num % omp_get_num_threads()
-               % view_segment_num.segment_num() % view_segment_num.view_num(), 2);
-#else
-          info(boost::format("calculating segment_num: %d, view_num: %d")
-               % view_segment_num.segment_num() % view_segment_num.view_num(), 2);
-#endif
+// #ifdef STIR_OPENMP
+//           const int thread_num=omp_get_thread_num();
+//           info(boost::format("Thread %d/%d calculating segment_num: %d, view_num: %d")
+//                % thread_num % omp_get_num_threads()
+//                % view_segment_num.segment_num() % view_segment_num.view_num(), 2);
+// #else
+//           info(boost::format("calculating segment_num: %d, view_num: %d")
+//                % view_segment_num.segment_num() % view_segment_num.view_num(), 2);
+// #endif
 
 #ifdef STIR_OPENMP
           RPC_process_related_viewgrams(forward_projector_ptr,

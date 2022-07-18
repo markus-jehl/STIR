@@ -343,9 +343,9 @@ do_segments(const VoxelsOnCartesianGrid<float>& image,
       
       already_processed.push_back(vs);
       
-      cerr << "Processing view " << vs.view_num() 
-        << " of segment " <<vs.segment_num()
-        << endl;
+      // cerr << "Processing view " << vs.view_num() 
+      //   << " of segment " <<vs.segment_num()
+      //   << endl;
       
       RelatedViewgrams<float> viewgrams = 
         proj_data.get_empty_related_viewgrams(vs, symmetries_sptr,false);

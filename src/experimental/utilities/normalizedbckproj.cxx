@@ -81,9 +81,9 @@ do_segments(DiscretisedDensity<3,float>& image,
 
     already_processed.push_back(vs);
     
-    cerr << "Processing view " << vs.view_num()
-      << " of segment " <<vs.segment_num()
-      << endl;
+    // cerr << "Processing view " << vs.view_num()
+    //   << " of segment " <<vs.segment_num()
+    //   << endl;
     
     if(fill_with_1 )
     {
