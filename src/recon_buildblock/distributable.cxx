@@ -475,7 +475,7 @@ void distributable_computation(
 #else // STIR_MPI
 
 // #ifdef STIR_OPENMP
-//           const int thread_num=omp_get_thread_num();
+           const int thread_num=omp_get_thread_num();
 //           info(boost::format("Thread %d/%d calculating segment_num: %d, view_num: %d")
 //                % thread_num % omp_get_num_threads()
 //                % view_segment_num.segment_num() % view_segment_num.view_num(), 2);
