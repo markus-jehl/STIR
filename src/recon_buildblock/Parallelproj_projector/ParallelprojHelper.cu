@@ -23,11 +23,9 @@
 #include "stir/Bin.h"
 #include "stir/TOF_conversions.h"
 
-// for debugging, remove later
-#include "stir/info.h"
-#include "stir/stream.h"
-#include <iostream>
 #include "stir/num_threads.h"
+
+#include <cuda_runtime.h>
 
 START_NAMESPACE_STIR
 
@@ -45,7 +43,9 @@ detail::ParallelprojHelper::ParallelprojHelper(const ProjDataInfo& p_info, const
     : xstart(p_info.size_all() * 3),
       xend(p_info.size_all() * 3)
 {
-  info("Creating parallelproj data-structures", 2);
+  
+  cudaMallocManaged(&xstart_p, p_info.size_all() * 3 * sizeof(float));
+  cudaMallocManaged(&xend_p, p_info.size_all() * 3 * sizeof(float));
 
   auto& stir_image = dynamic_cast<const VoxelsOnCartesianGrid<float>&>(density);
 
@@ -141,6 +141,13 @@ detail::ParallelprojHelper::ParallelprojHelper(const ProjDataInfo& p_info, const
                         ATOMICWRITE xend[this_index + 1] = 0;
                         ATOMICWRITE xstart[this_index + 2] = 0;
                         ATOMICWRITE xend[this_index + 2] = 0;
+
+                        ATOMICWRITE xstart_p[this_index] = 0;
+                        ATOMICWRITE xend_p[this_index] = 0;
+                        ATOMICWRITE xstart_p[this_index + 1] = 0;
+                        ATOMICWRITE xend_p[this_index + 1] = 0;
+                        ATOMICWRITE xstart_p[this_index + 2] = 0;
+                        ATOMICWRITE xend_p[this_index + 2] = 0;
                       }
                     }
                   else
@@ -155,6 +162,13 @@ detail::ParallelprojHelper::ParallelprojHelper(const ProjDataInfo& p_info, const
                         ATOMICWRITE xend[this_index + 1] = p2[2];
                         ATOMICWRITE xstart[this_index + 2] = p1[3];
                         ATOMICWRITE xend[this_index + 2] = p2[3];
+                        
+                        ATOMICWRITE xstart_p[this_index] = p1[1];
+                        ATOMICWRITE xend_p[this_index] = p2[1];
+                        ATOMICWRITE xstart_p[this_index + 1] = p1[2];
+                        ATOMICWRITE xend_p[this_index + 1] = p2[2];
+                        ATOMICWRITE xstart_p[this_index + 2] = p1[3];
+                        ATOMICWRITE xend_p[this_index + 2] = p2[3];
                       }
                     }
                 }
@@ -162,8 +176,6 @@ detail::ParallelprojHelper::ParallelprojHelper(const ProjDataInfo& p_info, const
             }
         }
     }
-
-  info("done", 2);
 }
 
 END_NAMESPACE_STIR
