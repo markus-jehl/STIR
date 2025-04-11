@@ -49,6 +49,8 @@ public:
   std::array<float, 3> origin;
   std::vector<float> xstart;
   std::vector<float> xend;
+  float* xstart_p;
+  float* xend_p;
 
   long long num_image_voxel;
   long long num_lors;

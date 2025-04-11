@@ -79,6 +79,7 @@
 
 #ifdef STIR_WITH_CUDA
 #  include "stir/recon_buildblock/CUDA/CudaRelativeDifferencePrior.h"
+#  include "stir/recon_buildblock/Parallelproj_projector/ForwardProjectorByBinParallelproj.h"
 #endif
 
 #ifdef STIR_WITH_Parallelproj_PROJECTOR

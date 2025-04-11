@@ -32,6 +32,7 @@
 #include <algorithm>
 #ifdef parallelproj_built_with_CUDA
 #  include "parallelproj_cuda.h"
+#  include <cuda_runtime.h>
 #else
 #  include "parallelproj_c.h"
 #endif
@@ -202,8 +203,8 @@ ForwardProjectorByBinParallelproj::set_input(const DiscretisedDensity<3, float>&
         {
 
           std::vector<float> mem_for_PP(num_lors_per_chunk * _helper->num_tof_bins);
-          joseph3d_fwd_tof_sino_cuda(_helper->xend.data() + 3 * offset,
-                                     _helper->xstart.data() + 3 * offset,
+          joseph3d_fwd_tof_sino_cuda(_helper->xend_p + 3 * offset,
+                                     _helper->xstart_p + 3 * offset,
                                      image_on_cuda_devices,
                                      _helper->origin.data(),
                                      _helper->voxsize.data(),
@@ -231,15 +232,40 @@ ForwardProjectorByBinParallelproj::set_input(const DiscretisedDensity<3, float>&
         }
       else
         {
-          joseph3d_fwd_cuda(_helper->xstart.data() + 3 * offset,
-                            _helper->xend.data() + 3 * offset,
-                            image_on_cuda_devices,
-                            _helper->origin.data(),
-                            _helper->voxsize.data(),
-                            _projected_data_sptr->get_data_ptr() + offset,
-                            num_lors_per_chunk,
-                            _helper->imgdim.data(),
-                            /*threadsperblock*/ 64);
+          float* d_p;
+          // allocate the memory for the array containing the projection on the device
+          long long proj_bytes_dev = num_lors_per_chunk * sizeof(float);
+          cudaError_t error = cudaMalloc(&d_p, proj_bytes_dev);
+          if (error != cudaSuccess)
+            {
+              printf("cudaMalloc returned error %s (code %d), line(%d)\n", cudaGetErrorString(error), error, __LINE__);
+              exit(EXIT_FAILURE);
+            }
+          cudaMemsetAsync(d_p, 0, proj_bytes_dev);
+
+          joseph3d_fwd_cuda_new(_helper->xstart_p + 3 * offset,
+                                _helper->xend_p + 3 * offset,
+                                image_on_cuda_devices[0],
+                                _helper->origin.data(),
+                                _helper->voxsize.data(),
+                                d_p,
+                                num_lors_per_chunk,
+                                _helper->imgdim.data(),
+                                /*gpu_device_id*/ 0,
+                                /*threadsperblock*/ 64);
+
+          // use pinned memory for projetion host array which speeds up memory transfer
+          cudaHostRegister(_projected_data_sptr->get_data_ptr() + offset, proj_bytes_dev, cudaHostRegisterDefault);
+
+          // copy projection back from device to host
+          cudaMemcpyAsync(_projected_data_sptr->get_data_ptr() + offset, d_p, proj_bytes_dev, cudaMemcpyDeviceToHost);
+
+          // unpin memory
+          cudaHostUnregister(_projected_data_sptr->get_data_ptr() + offset);
+
+          // deallocate memory on device
+          cudaFree(d_p);
+
           if (chunk_num != _num_gpu_chunks - 1)
             _projected_data_sptr->release_data_ptr();
         }
