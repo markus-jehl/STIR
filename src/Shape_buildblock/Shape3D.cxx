@@ -22,6 +22,7 @@
 #include "stir/DiscretisedDensity.h"
 #include "stir/VoxelsOnCartesianGrid.h"
 #include "stir/info.h"
+#include <boost/format.hpp>
 
 using std::cerr;
 using std::endl;

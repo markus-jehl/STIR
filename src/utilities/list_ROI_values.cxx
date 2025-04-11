@@ -54,6 +54,7 @@
 #include <iomanip>
 #include <fstream>
 #include <vector>
+#include <boost/format.hpp>
 
 using std::cerr;
 using std::endl;

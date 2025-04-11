@@ -32,6 +32,7 @@
 #include "stir/warning.h"
 #include "stir/error.h"
 #include <algorithm>
+#include <boost/format.hpp>
 using std::min;
 using std::max;
 

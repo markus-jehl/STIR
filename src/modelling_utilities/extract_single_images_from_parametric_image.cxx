@@ -48,6 +48,7 @@
 #include "stir/IO/OutputFileFormat.h"
 #include "stir/Succeeded.h"
 #include "stir/error.h"
+#include <boost/format.hpp>
 
 int
 main(int argc, char* argv[])
