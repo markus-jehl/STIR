@@ -42,6 +42,7 @@
 #include <algorithm>
 #include "boost/lambda/lambda.hpp"
 #include "stir/unique_ptr.h"
+#include "boost/format.hpp"
 
 using std::cerr;
 using std::endl;

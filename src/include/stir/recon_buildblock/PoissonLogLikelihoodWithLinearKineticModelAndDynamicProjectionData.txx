@@ -30,6 +30,7 @@
 #include "stir/info.h"
 #include "stir/warning.h"
 #include "stir/error.h"
+#include "boost/format.hpp"
 
 // include the following to set defaults
 #ifndef USE_PMRT

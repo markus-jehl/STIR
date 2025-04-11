@@ -26,6 +26,7 @@
 #include "stir/decay_correction_factor.h"
 #include "stir/IndexRange2D.h"
 #include "stir/info.h"
+#include "boost/format.hpp"
 
 START_NAMESPACE_STIR
 

@@ -37,6 +37,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include "boost/format.hpp"
 /***********************************************************/
 
 START_NAMESPACE_STIR

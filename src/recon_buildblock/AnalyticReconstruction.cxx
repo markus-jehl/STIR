@@ -31,6 +31,7 @@
 #include "stir/error.h"
 #include <iostream>
 #include "stir/IO/OutputFileFormat.h"
+#include "boost/format.hpp"
 
 START_NAMESPACE_STIR
 

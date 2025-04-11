@@ -45,6 +45,7 @@
 #include "stir/spatial_transformation/GatedSpatialTransformation.h"
 #include "stir/recon_buildblock/PoissonLogLikelihoodWithLinearModelForMeanAndGatedProjDataWithMotion.h"
 #include "stir/recon_buildblock/BinNormalisationFromProjData.h"
+#include "boost/format.hpp"
 
 START_NAMESPACE_STIR
 

@@ -29,6 +29,7 @@
 #include "stir/warning.h"
 #include <iostream>
 #include <algorithm>
+#include "boost/format.hpp"
 
 using std::cerr;
 using std::endl;

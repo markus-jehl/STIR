@@ -30,6 +30,7 @@
 #include "stir/FilePath.h"
 #include "stir/warning.h"
 #include "stir/error.h"
+#include "boost/format.hpp"
 
 using std::vector;
 using std::pair;
