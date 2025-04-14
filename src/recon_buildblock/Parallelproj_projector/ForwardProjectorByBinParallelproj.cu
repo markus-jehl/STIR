@@ -255,13 +255,14 @@ ForwardProjectorByBinParallelproj::set_input(const DiscretisedDensity<3, float>&
                                 /*threadsperblock*/ 64);
 
           // use pinned memory for projetion host array which speeds up memory transfer
-          cudaHostRegister(_projected_data_sptr->get_data_ptr() + offset, proj_bytes_dev, cudaHostRegisterDefault);
+          auto h_p = _projected_data_sptr->get_data_ptr();
+          cudaHostRegister(h_p + offset, proj_bytes_dev, cudaHostRegisterDefault);
 
           // copy projection back from device to host
-          cudaMemcpyAsync(_projected_data_sptr->get_data_ptr() + offset, d_p, proj_bytes_dev, cudaMemcpyDeviceToHost);
+          cudaMemcpyAsync(h_p + offset, d_p, proj_bytes_dev, cudaMemcpyDeviceToHost);
 
           // unpin memory
-          cudaHostUnregister(_projected_data_sptr->get_data_ptr() + offset);
+          cudaHostUnregister(h_p + offset);
 
           // deallocate memory on device
           cudaFree(d_p);

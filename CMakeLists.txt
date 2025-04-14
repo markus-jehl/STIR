@@ -89,6 +89,7 @@ set(STIR_INCLUDE_INSTALL_DIR "include/${STIR_VERSION_MM}")
 #### we need the boost library from boost.org
 set(BOOST_ROOT CACHE PATH "root of Boost")
 find_package( Boost 1.36.0 REQUIRED )
+find_package(fmt REQUIRED) # much leaner string formatting -> in std from C++20
 
 #### optional external libraries. 
 # Listed here such that we know if we should compile extra utilities

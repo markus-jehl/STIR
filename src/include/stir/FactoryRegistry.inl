@@ -20,6 +20,7 @@
 
 #include <utility>
 // #include <boost/format.hpp>
+#include <fmt/format.h>
 #include "stir/warning.h"
 #include "stir/error.h"
 
@@ -58,9 +59,8 @@ FactoryRegistry<Key, Factory, Compare>::add_to_registry(const Key& key, Factory 
   typename FactoryMap::iterator iter = m.find(key);
   if (iter != m.end())
     {
-      // warning(boost::format("FactoryRegistry:: overwriting previous value of key in registry.\n"
-      //                       "     key: %1%")
-      //         % key);
+      warning(fmt::format("FactoryRegistry:: overwriting previous value of key in registry.\n"
+                            "     key: {}", key));
     }
 
 #endif
@@ -76,10 +76,9 @@ FactoryRegistry<Key, Factory, Compare>::remove_from_registry(const Key& key)
   if (iter == m.end())
     {
 #ifndef _NDEBUG
-      // // TODO don't output to cerr, but use only warning()
-      // warning(boost::format("FactoryRegistry:: Attempt to remove key from registry, but it's not in there...\n"
-      //                       "     key: %1%")
-      //         % key);
+      // TODO don't output to cerr, but use only warning()
+      warning(fmt::format("FactoryRegistry:: Attempt to remove key from registry, but it's not in there...\n"
+                            "     key: {}", key));
 #endif
     }
   else
