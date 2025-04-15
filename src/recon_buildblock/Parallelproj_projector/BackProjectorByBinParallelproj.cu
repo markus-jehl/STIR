@@ -32,6 +32,7 @@
 #include "stir/recon_array_functions.h"
 #ifdef parallelproj_built_with_CUDA
 #  include "parallelproj_cuda.h"
+#  include <cuda_runtime.h>
 #else
 #  include "parallelproj_c.h"
 #endif
@@ -183,8 +184,8 @@ BackProjectorByBinParallelproj::get_output(DiscretisedDensity<3, float>& density
           TOF_transpose(mem_for_PP_back, STIR_mem, _helper, offset);
 
           // info("created object mem_for_PP_img", 2);
-          joseph3d_back_tof_sino_cuda(_helper->xend.data() + 3 * offset,
-                                      _helper->xstart.data() + 3 * offset,
+          joseph3d_back_tof_sino_cuda(_helper->xend + 3 * offset,
+                                      _helper->xstart + 3 * offset,
                                       image_on_cuda_devices,
                                       _helper->origin.data(),
                                       _helper->voxsize.data(),
@@ -205,15 +206,40 @@ BackProjectorByBinParallelproj::get_output(DiscretisedDensity<3, float>& density
         }
       else
         {
-          joseph3d_back_cuda(_helper->xstart.data() + 3 * offset,
-                             _helper->xend.data() + 3 * offset,
-                             image_on_cuda_devices,
-                             _helper->origin.data(),
-                             _helper->voxsize.data(),
-                             p.get_const_data_ptr() + offset,
-                             num_lors_per_chunk,
-                             _helper->imgdim.data(),
-                             /*threadsperblock*/ 64);
+          float* d_p;
+          // allocate the memory for the array containing the projection on the device
+          long long proj_bytes_dev = num_lors_per_chunk * sizeof(float);
+          cudaError_t error = cudaMalloc(&d_p, proj_bytes_dev);
+          if (error != cudaSuccess)
+          {
+            printf("cudaMalloc returned error %s (code %d), line(%d)\n", cudaGetErrorString(error), error, __LINE__);
+            exit(EXIT_FAILURE);
+          }
+          cudaMemcpyAsync(d_p, p.get_const_data_ptr() + offset, proj_bytes_dev, cudaMemcpyHostToDevice);
+          p.release_const_data_ptr();
+
+          // joseph3d_back_cuda(_helper->xstart.data() + 3 * offset,
+          //                    _helper->xend.data() + 3 * offset,
+          //                    image_on_cuda_devices,
+          //                    _helper->origin.data(),
+          //                    _helper->voxsize.data(),
+          //                    p.get_const_data_ptr() + offset,
+          //                    num_lors_per_chunk,
+          //                    _helper->imgdim.data(),
+          //                    /*threadsperblock*/ 64);
+          joseph3d_back_cuda_new(_helper->xstart + 3 * offset,
+                                 _helper->xend + 3 * offset,
+                                 image_on_cuda_devices[0],
+                                 _helper->origin.data(),
+                                 _helper->voxsize.data(),
+                                 d_p,
+                                 num_lors_per_chunk,
+                                 _helper->imgdim.data(),
+                                 /*device_id*/ 0,
+                                 /*threadsperblock*/ 64);
+
+          // deallocate memory on device
+          cudaFree(d_p);
         }
       offset += num_lors_per_chunk;
     }
@@ -266,7 +292,7 @@ BackProjectorByBinParallelproj::get_output(DiscretisedDensity<3, float>& density
 #endif
   info("done", 2);
 
-  p.release_const_data_ptr();
+  // p.release_const_data_ptr();
 
   // --------------------------------------------------------------- //
   //   Parallelproj -> STIR image conversion

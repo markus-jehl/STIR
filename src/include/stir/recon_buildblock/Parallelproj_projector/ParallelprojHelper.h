@@ -47,10 +47,8 @@ public:
   std::array<float, 3> voxsize;
   std::array<int, 3> imgdim;
   std::array<float, 3> origin;
-  std::vector<float> xstart;
-  std::vector<float> xend;
-  float* xstart_p;
-  float* xend_p;
+  float* xstart;
+  float* xend;
 
   long long num_image_voxel;
   long long num_lors;

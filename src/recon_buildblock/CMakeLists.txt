@@ -26,7 +26,7 @@ set(${dir_LIB_SOURCES}
 if (STIR_WITH_Parallelproj_PROJECTOR)
   list(APPEND ${dir_LIB_SOURCES}
     Parallelproj_projector/ForwardProjectorByBinParallelproj.cu
-    Parallelproj_projector/BackProjectorByBinParallelproj.cxx
+    Parallelproj_projector/BackProjectorByBinParallelproj.cu
     Parallelproj_projector/ProjectorByBinPairUsingParallelproj.cxx
     Parallelproj_projector/ParallelprojHelper.cu
   )

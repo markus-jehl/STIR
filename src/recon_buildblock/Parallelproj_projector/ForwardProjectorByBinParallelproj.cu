@@ -203,8 +203,8 @@ ForwardProjectorByBinParallelproj::set_input(const DiscretisedDensity<3, float>&
         {
 
           std::vector<float> mem_for_PP(num_lors_per_chunk * _helper->num_tof_bins);
-          joseph3d_fwd_tof_sino_cuda(_helper->xend_p + 3 * offset,
-                                     _helper->xstart_p + 3 * offset,
+          joseph3d_fwd_tof_sino_cuda(_helper->xend + 3 * offset,
+                                     _helper->xstart + 3 * offset,
                                      image_on_cuda_devices,
                                      _helper->origin.data(),
                                      _helper->voxsize.data(),
@@ -243,8 +243,8 @@ ForwardProjectorByBinParallelproj::set_input(const DiscretisedDensity<3, float>&
             }
           cudaMemsetAsync(d_p, 0, proj_bytes_dev);
 
-          joseph3d_fwd_cuda_new(_helper->xstart_p + 3 * offset,
-                                _helper->xend_p + 3 * offset,
+          joseph3d_fwd_cuda_new(_helper->xstart + 3 * offset,
+                                _helper->xend + 3 * offset,
                                 image_on_cuda_devices[0],
                                 _helper->origin.data(),
                                 _helper->voxsize.data(),

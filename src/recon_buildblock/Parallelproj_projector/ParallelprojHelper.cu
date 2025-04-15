@@ -40,12 +40,10 @@ copy_to_array(const BasicCoordinate<3, T>& c, std::array<T, 3>& a)
 }
 
 detail::ParallelprojHelper::ParallelprojHelper(const ProjDataInfo& p_info, const DiscretisedDensity<3, float>& density)
-    : xstart(p_info.size_all() * 3),
-      xend(p_info.size_all() * 3)
 {
   
-  cudaMallocManaged(&xstart_p, p_info.size_all() * 3 * sizeof(float));
-  cudaMallocManaged(&xend_p, p_info.size_all() * 3 * sizeof(float));
+  cudaMallocManaged(&xstart, p_info.size_all() * 3 * sizeof(float));
+  cudaMallocManaged(&xend, p_info.size_all() * 3 * sizeof(float));
 
   auto& stir_image = dynamic_cast<const VoxelsOnCartesianGrid<float>&>(density);
 
@@ -141,13 +139,6 @@ detail::ParallelprojHelper::ParallelprojHelper(const ProjDataInfo& p_info, const
                         ATOMICWRITE xend[this_index + 1] = 0;
                         ATOMICWRITE xstart[this_index + 2] = 0;
                         ATOMICWRITE xend[this_index + 2] = 0;
-
-                        ATOMICWRITE xstart_p[this_index] = 0;
-                        ATOMICWRITE xend_p[this_index] = 0;
-                        ATOMICWRITE xstart_p[this_index + 1] = 0;
-                        ATOMICWRITE xend_p[this_index + 1] = 0;
-                        ATOMICWRITE xstart_p[this_index + 2] = 0;
-                        ATOMICWRITE xend_p[this_index + 2] = 0;
                       }
                     }
                   else
@@ -162,13 +153,6 @@ detail::ParallelprojHelper::ParallelprojHelper(const ProjDataInfo& p_info, const
                         ATOMICWRITE xend[this_index + 1] = p2[2];
                         ATOMICWRITE xstart[this_index + 2] = p1[3];
                         ATOMICWRITE xend[this_index + 2] = p2[3];
-                        
-                        ATOMICWRITE xstart_p[this_index] = p1[1];
-                        ATOMICWRITE xend_p[this_index] = p2[1];
-                        ATOMICWRITE xstart_p[this_index + 1] = p1[2];
-                        ATOMICWRITE xend_p[this_index + 1] = p2[2];
-                        ATOMICWRITE xstart_p[this_index + 2] = p1[3];
-                        ATOMICWRITE xend_p[this_index + 2] = p2[3];
                       }
                     }
                 }
