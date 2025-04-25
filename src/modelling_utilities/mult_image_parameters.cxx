@@ -27,12 +27,14 @@
   \note It is useful to estimate the covariance between the two parameters of the parametric images.
 
 */
-#include "stir/Succeeded.h"
+#include "stir/DiscretisedDensity.h"
 #include "stir/IO/OutputFileFormat.h"
 #include "stir/IO/read_from_file.h"
-#include "stir/DiscretisedDensity.h"
-#include "stir/modelling/ParametricDiscretisedDensity.h"
+#include "stir/Succeeded.h"
 #include "stir/getopt.h"
+#include "stir/modelling/ParametricDiscretisedDensity.h"
+#include <fmt/core.h>
+
 #include <algorithm>
 
 int
@@ -62,9 +64,9 @@ main(int argc, char* argv[])
           return EXIT_FAILURE;
         default:
           if (isprint(optopt))
-            fprintf(stderr, "Unknown option `-%c'.\n", optopt);
+            fmt::println(stderr, "Unknown option `-{:c}'.", optopt);
           else
-            fprintf(stderr, "Unknown option character `\\x%x'.\n", optopt);
+            fmt::println(stderr, "Unknown option character `\\x{:x}'.", optopt);
           std::cerr << usage;
           return EXIT_FAILURE;
         }

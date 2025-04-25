@@ -38,7 +38,7 @@ FRAME_BASED_DT_CORR:
 // (Note: can currently NOT be disabled)
 #define USE_SegmentByView
 
-//#define FRAME_BASED_DT_CORR
+// #define FRAME_BASED_DT_CORR
 
 // set elem_type to what you want to use for the sinogram elements
 // we need a signed type, as randoms can be subtracted. However, signed char could do.
@@ -78,6 +78,8 @@ typedef short elem_type;
 #include "stir/is_null_ptr.h"
 #include "stir/warning.h"
 #include "stir/error.h"
+
+#include <fmt/core.h>
 
 #include <fstream>
 #include <iostream>
@@ -510,13 +512,13 @@ LmToProjData::get_bin_from_event(Bin& bin, const ListEvent& event) const
         return; // rejected for some strange reason
 
       // do_normalisation
-      //#ifndef FRAME_BASED_DT_CORR
+      // #ifndef FRAME_BASED_DT_CORR
       //     const double start_time = current_time;
       //     const double end_time = current_time;
-      //#else
+      // #else
       //     const double start_time = frame_defs.get_start_time(current_frame_num);
       //     const double end_time =frame_defs.get_end_time(current_frame_num);
-      //#endif
+      // #endif
 
       const float bin_efficiency = normalisation_ptr->get_bin_efficiency(uncompressed_bin);
       // TODO remove arbitrary number. Supposes that these bin_efficiencies are around 1
@@ -566,13 +568,13 @@ LmToProjData::do_post_normalisation(Bin& bin) const
         }
       else
         {
-          //#ifndef FRAME_BASED_DT_CORR
+          // #ifndef FRAME_BASED_DT_CORR
           //	  const double start_time = current_time;
           //	  const double end_time = current_time;
-          //#else
+          // #else
           //	  const double start_time = frame_defs.get_start_time(current_frame_num);
           //	  const double end_time =frame_defs.get_end_time(current_frame_num);
-          //#endif
+          // #endif
           const float bin_efficiency = post_normalisation_ptr->get_bin_efficiency(bin);
           // TODO remove arbitrary number. Supposes that these bin_efficiencies are around 1
           if (bin_efficiency < 1.E-10)
@@ -856,15 +858,15 @@ LmToProjData::process_data()
                                       cout << "\r" << num_stored_events << " events stored" << flush;
 
                                     if (interactive)
-                                      printf(
-                                          "TOFbin %4d Seg %4d view %4d ax_pos %4d tang_pos %4d time %8g stored with incr %d \n",
-                                          bin.timing_pos_num(),
-                                          bin.segment_num(),
-                                          bin.view_num(),
-                                          bin.axial_pos_num(),
-                                          bin.tangential_pos_num(),
-                                          current_time,
-                                          event_increment);
+                                      fmt::print("TOFbin {:4} Seg {:4} view {:4} ax_pos {:4} tang_pos {:4} time "
+                                                 "{:8g} stored with incr {} ",
+                                                 bin.timing_pos_num(),
+                                                 bin.segment_num(),
+                                                 bin.view_num(),
+                                                 bin.axial_pos_num(),
+                                                 bin.tangential_pos_num(),
+                                                 current_time,
+                                                 event_increment);
                                     else
                                       (*segments[bin.timing_pos_num()][bin.segment_num()])[bin.view_num()][bin.axial_pos_num()]
                                                                                           [bin.tangential_pos_num()]
@@ -875,16 +877,16 @@ LmToProjData::process_data()
                         else // event is rejected for some reason
                           {
                             if (interactive)
-                              printf("TOFbin %4d Seg %4d view %4d ax_pos %4d tang_pos %4d time %8g ignored\n",
-                                     bin.timing_pos_num(),
-                                     bin.segment_num(),
-                                     bin.view_num(),
-                                     bin.axial_pos_num(),
-                                     bin.tangential_pos_num(),
-                                     current_time);
+                              fmt::print("TOFbin {:4} Seg {:4} view {:4} ax_pos {:4} tang_pos {:4} time {:8g} ignored",
+                                         bin.timing_pos_num(),
+                                         bin.segment_num(),
+                                         bin.view_num(),
+                                         bin.axial_pos_num(),
+                                         bin.tangential_pos_num(),
+                                         current_time);
                           }
                       } // end of spatial event processing
-                  }     // end of while loop over all events
+                  } // end of while loop over all events
 
                 time_of_last_stored_event = max(time_of_last_stored_event, current_time);
               }

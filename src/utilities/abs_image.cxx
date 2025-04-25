@@ -24,12 +24,14 @@
   \endcode
   Use <tt>-p</tt> switch for parametric images, or the <tt>-d</tt> switch for dynamic images.
 */
-#include "stir/Succeeded.h"
+#include "stir/DiscretisedDensity.h"
+#include "stir/DynamicDiscretisedDensity.h"
 #include "stir/IO/OutputFileFormat.h"
 #include "stir/IO/read_from_file.h"
-#include "stir/DiscretisedDensity.h"
+#include "stir/Succeeded.h"
 #include "stir/modelling/ParametricDiscretisedDensity.h"
-#include "stir/DynamicDiscretisedDensity.h"
+#include <fmt/core.h>
+
 #include <algorithm>
 #include "stir/getopt.h"
 
@@ -67,9 +69,9 @@ main(int argc, char* argv[])
           return EXIT_FAILURE;
         default:
           if (isprint(optopt))
-            fprintf(stderr, "Unknown option `-%c'.\n", optopt);
+            fmt::println(stderr, "Unknown option `-{:c}'.", optopt);
           else
-            fprintf(stderr, "Unknown option character `\\x%x'.\n", optopt);
+            fmt::println(stderr, "Unknown option character `\\x{:x}'.", optopt);
           std::cerr << usage;
           return EXIT_FAILURE;
         }

@@ -41,9 +41,10 @@ TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF TH
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -----*/
 
-#include <stdio.h>
-#include <iostream>
+#include <fmt/core.h>
 #include <fstream>
+#include <iostream>
+#include <stdio.h>
 using namespace std;
 
 #include <cstdlib>
@@ -129,7 +130,7 @@ Image::~Image()
 void
 Image::GiplRead(char* filename)
 {
-  printf("Read %s\n", filename);
+  fmt::print("Read {}", filename);
 
   // Open input binary file
   std::fstream myFile(filename, std::ios_base::in | std::ios_base::binary);
@@ -162,7 +163,7 @@ cout << "Exception raised: " << str << '\n';
   // File cannot be read, wrong path or filename
   if (MaxLength == 0)
     {
-      printf("Error: File %s cannot be found\n", filename);
+      fmt::print("Error: File {} cannot be found", filename);
       exit(1);
     }
 

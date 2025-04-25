@@ -32,6 +32,8 @@
 #include "stir/error.h"
 #include "stir/warning.h"
 
+#include <fmt/core.h>
+
 #include <cstdio>
 #include <fstream>
 #include <algorithm>
@@ -103,7 +105,7 @@ write_pgm(const std::string& filename, const Array<2, elemT>& plane, const doubl
   {
     const int X = max_indices[2] - min_indices[2] + 1;
     const int Y = (max_indices[1] - min_indices[1] + 1);
-    fprintf(pgm, "P5\n#created by STIR\n%d %d\n%d\n", X, Y, pgm_max);
+    fmt::println(pgm, "P5\n#created by STIR\n{} {}\n{}", X, Y, pgm_max);
   }
 
   for (int y = min_indices[1]; y <= max_indices[1]; y++)
@@ -117,7 +119,7 @@ write_pgm(const std::string& filename, const Array<2, elemT>& plane, const doubl
             val = min_threshold;
           // now to pgm range
           val = (val - min_threshold) / (max_threshold - min_threshold) * pgm_max;
-          fprintf(pgm, "%c", static_cast<unsigned char>(stir::round(val)));
+          fmt::print(pgm, "{:c}", static_cast<unsigned char>(stir::round(val)));
         }
     }
   fclose(pgm);
@@ -128,10 +130,8 @@ END_NAMESPACE_STIR
 void
 print_usage_and_exit(const std::string& program_name)
 {
-  std::cerr << "Usage: " << program_name << "\n\t"
-            << "[--min min_value] [--max max_value] \\\n\t"
-            << "[--orientation t|c|s] [--slice_index idx] \\\n\t"
-            << "output_filename.pgm input_filename \n"
+  std::cerr << "Usage: " << program_name << "\n\t" << "[--min min_value] [--max max_value] \\\n\t"
+            << "[--orientation t|c|s] [--slice_index idx] \\\n\t" << "output_filename.pgm input_filename \n"
             << "min_value default to 0, max_value to max in image\n"
             << "oritentation defaults to transverse\n"
             << "slice index is zero-based and defaults to the middle of the image (using rounding)\n";
