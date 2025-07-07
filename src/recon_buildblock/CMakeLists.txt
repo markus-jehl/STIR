@@ -25,6 +25,7 @@ set(${dir_LIB_SOURCES}
 
 if (STIR_WITH_Parallelproj_PROJECTOR)
   list(APPEND ${dir_LIB_SOURCES}
+		Parallelproj_projector/utils_cuda.cu
     Parallelproj_projector/ForwardProjectorByBinParallelproj.cu
     Parallelproj_projector/BackProjectorByBinParallelproj.cu
     Parallelproj_projector/ProjectorByBinPairUsingParallelproj.cxx
@@ -166,9 +167,12 @@ else()
 endif()
 
 if (STIR_WITH_Parallelproj_PROJECTOR)
-  target_link_libraries(recon_buildblock PRIVATE parallelproj::parallelproj_c)
-  if (parallelproj_built_with_CUDA)
-    target_link_libraries(recon_buildblock PRIVATE parallelproj::parallelproj_cuda)
+  # target_link_libraries(recon_buildblock PRIVATE parallelproj::parallelproj_c)
+	message(STATUS "The STIR Parallelproj include dir is ${PARALLELPROJ_INCLUDE_DIRS}")
+	message(STATUS "The value of PARALLELPROJ_CUDA is ${PARALLELPROJ_CUDA}")
+  if (PARALLELPROJ_CUDA)
+    target_link_libraries(recon_buildblock PRIVATE parallelproj::parallelproj)
+		target_include_directories(recon_buildblock PRIVATE ${PARALLELPROJ_INCLUDE_DIRS})
   endif()
 endif()
 

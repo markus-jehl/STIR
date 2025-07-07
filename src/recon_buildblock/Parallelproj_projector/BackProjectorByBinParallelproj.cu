@@ -30,11 +30,11 @@
 #include "stir/ProjDataInMemory.h"
 #include "stir/LORCoordinates.h"
 #include "stir/recon_array_functions.h"
-#ifdef parallelproj_built_with_CUDA
-#  include "parallelproj_cuda.h"
+#ifdef PARALLELPROJ_CUDA // parallelproj_built_with_CUDA
+// #  include "parallelproj_cuda.h"
+// #else
+#  include "parallelproj.h"
 #  include <cuda_runtime.h>
-#else
-#  include "parallelproj_c.h"
 #endif
 // for debugging, remove later
 #include "stir/info.h"
@@ -152,7 +152,7 @@ BackProjectorByBinParallelproj::get_output(DiscretisedDensity<3, float>& density
 
   info("Calling parallelproj backprojector", 2);
 
-#ifdef parallelproj_built_with_CUDA
+#ifdef PARALLELPROJ_CUDA // parallelproj_built_with_CUDA
 
   long long num_lors_per_chunk_floor = _helper->num_lors / _num_gpu_chunks;
   long long remainder = _helper->num_lors % _num_gpu_chunks;
@@ -184,23 +184,23 @@ BackProjectorByBinParallelproj::get_output(DiscretisedDensity<3, float>& density
           TOF_transpose(mem_for_PP_back, STIR_mem, _helper, offset);
 
           // info("created object mem_for_PP_img", 2);
-          joseph3d_back_tof_sino_cuda(_helper->xend + 3 * offset,
-                                      _helper->xstart + 3 * offset,
-                                      image_on_cuda_devices,
-                                      _helper->origin.data(),
-                                      _helper->voxsize.data(),
-                                      mem_for_PP_back.data(), // p.get_const_data_ptr() + offset* num_tof_bins,
-                                      num_lors_per_chunk,
-                                      _helper->imgdim.data(),
-                                      _helper->tofbin_width,
-                                      &_helper->sigma_tof,
-                                      &_helper->tofcenter_offset,
-                                      4, // float n_sigmas
-                                      _helper->num_tof_bins,
-                                      0, // unsigned char lor_dependent_sigma_tof
-                                      0, // unsigned char lor_dependent_tofcenter_offset
-                                      64 // threadsperblock
-          );
+          // joseph3d_back_tof_sino_cuda(_helper->xend + 3 * offset,
+          //                             _helper->xstart + 3 * offset,
+          //                             image_on_cuda_devices,
+          //                             _helper->origin.data(),
+          //                             _helper->voxsize.data(),
+          //                             mem_for_PP_back.data(), // p.get_const_data_ptr() + offset* num_tof_bins,
+          //                             num_lors_per_chunk,
+          //                             _helper->imgdim.data(),
+          //                             _helper->tofbin_width,
+          //                             &_helper->sigma_tof,
+          //                             &_helper->tofcenter_offset,
+          //                             4, // float n_sigmas
+          //                             _helper->num_tof_bins,
+          //                             0, // unsigned char lor_dependent_sigma_tof
+          //                             0, // unsigned char lor_dependent_tofcenter_offset
+          //                             64 // threadsperblock
+          // );
           if (chunk_num != _num_gpu_chunks - 1)
             p.release_const_data_ptr();
         }
@@ -227,16 +227,25 @@ BackProjectorByBinParallelproj::get_output(DiscretisedDensity<3, float>& density
           //                    num_lors_per_chunk,
           //                    _helper->imgdim.data(),
           //                    /*threadsperblock*/ 64);
-          joseph3d_back_cuda_new(_helper->xstart + 3 * offset,
-                                 _helper->xend + 3 * offset,
-                                 image_on_cuda_devices[0],
-                                 _helper->origin.data(),
-                                 _helper->voxsize.data(),
-                                 d_p,
-                                 num_lors_per_chunk,
-                                 _helper->imgdim.data(),
-                                 /*device_id*/ 0,
-                                 /*threadsperblock*/ 64);
+          // joseph3d_back_cuda_new(_helper->xstart + 3 * offset,
+          //                        _helper->xend + 3 * offset,
+          //                        image_on_cuda_devices[0],
+          //                        _helper->origin.data(),
+          //                        _helper->voxsize.data(),
+          //                        d_p,
+          //                        num_lors_per_chunk,
+          //                        _helper->imgdim.data(),
+          //                        /*device_id*/ 0,
+          //                        /*threadsperblock*/ 64);
+          joseph3d_back(_helper->xstart + 3 * offset,
+                        _helper->xend + 3 * offset,
+                        image_on_cuda_devices[0],
+                        _helper->origin.data(),
+                        _helper->voxsize.data(),
+                        d_p,
+                        _helper->num_image_voxel,
+                        num_lors_per_chunk,
+                        _helper->imgdim.data());
 
           // deallocate memory on device
           cudaFree(d_p);
@@ -261,32 +270,34 @@ BackProjectorByBinParallelproj::get_output(DiscretisedDensity<3, float>& density
 
       TOF_transpose(mem_for_PP_back, STIR_mem, _helper, 0);
 
-      joseph3d_back_tof_sino(_helper->xend.data(),
-                             _helper->xstart.data(),
-                             image_ptr,
-                             _helper->origin.data(),
-                             _helper->voxsize.data(),
-                             mem_for_PP_back.data(),
-                             _helper->num_lors,
-                             _helper->imgdim.data(),
-                             _helper->tofbin_width,
-                             &_helper->sigma_tof,
-                             &_helper->tofcenter_offset,
-                             4, // float n_sigmas,
-                             _helper->num_tof_bins,
-                             0, //  unsigned char lor_dependent_sigma_tof
-                             0  // unsigned char lor_dependent_tofcenter_offset
-      );
+      // not currently implemented
+      // joseph3d_back_tof_sino(_helper->xend.data(),
+      //                        _helper->xstart.data(),
+      //                        image_ptr,
+      //                        _helper->origin.data(),
+      //                        _helper->voxsize.data(),
+      //                        mem_for_PP_back.data(),
+      //                        _helper->num_lors,
+      //                        _helper->imgdim.data(),
+      //                        _helper->tofbin_width,
+      //                        &_helper->sigma_tof,
+      //                        &_helper->tofcenter_offset,
+      //                        4, // float n_sigmas,
+      //                        _helper->num_tof_bins,
+      //                        0, //  unsigned char lor_dependent_sigma_tof
+      //                        0  // unsigned char lor_dependent_tofcenter_offset
+      // );
     }
   else
     {
-      joseph3d_back(_helper->xstart.data(),
-                    _helper->xend.data(),
+      joseph3d_back(_helper->xstart,
+                    _helper->xend,
                     image_ptr,
                     _helper->origin.data(),
                     _helper->voxsize.data(),
                     p.get_const_data_ptr(),
-                    static_cast<long long>(p.get_proj_data_info_sptr()->size_all()),
+                   _helper->num_image_voxel,
+                   _helper->num_lors,
                     _helper->imgdim.data());
     }
 #endif
@@ -309,7 +320,7 @@ BackProjectorByBinParallelproj::get_output(DiscretisedDensity<3, float>& density
   // After the back projection, we enforce a truncation outside of the FOV.
   // This is because the parallelproj projector seems to have some trouble at the edges and this
   // could cause some voxel values to spiral out of control.
-  // if (_use_truncation)
+  if (true)
   {
     const float radius = p.get_proj_data_info_sptr()->get_scanner_sptr()->get_inner_ring_radius();
     const float image_radius = _helper->voxsize[2] * _helper->imgdim[2] / 2;

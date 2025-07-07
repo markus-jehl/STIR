@@ -63,4 +63,57 @@ public:
 
 END_NAMESPACE_STIR
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/** @brief copy a float array to all visible cuda devices
+ *
+ *  The number of visible cuda devices is determined automatically via the CUDA
+ * API
+ *
+ *  @param    h_array   array of shape [n] on the host
+ *  @param    n         number of array elements
+ *  @return   a pointer to all devices arrays
+ */
+float **copy_float_array_to_all_devices(const float *h_array, long long n);
+
+/** @brief free device array on all visible cuda devices
+ *
+ *  The number of visible cuda devices is determined automatically via the CUDA
+ * API
+ *
+ *  @param d_array a pointer to all devices arrays
+ */
+void free_float_array_on_all_devices(float **d_array);
+
+/** @brief sum multiple versions of an array on different devices on first
+ * device
+ *
+ *  The number of visible cuda devices is determined automatically via the CUDA
+ * API This becomes usefule when multiple devices backproject into separate
+ * images.
+ *
+ *  @param d_array a pointer to all devices arrays
+ *  @param    n         number of array elements
+ */
+void sum_float_arrays_on_first_device(float **d_array, long long n);
+
+/** @brief copy a (summed) float array from first device back to host
+ *
+ *  The number of visible cuda devices is determined automatically via the CUDA
+ * API
+ *
+ *  @param  d_array   a pointer to all devices arrays of shape [n]
+ *  @param  n         number of array elements
+ *  @param  i_dev     device number
+ *  @param  h_array   array of shape [n] on the host used for output
+ */
+void get_float_array_from_device(float **d_array, long long n, int i_dev,
+                                 float *h_array);
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
+
 #endif // __stir_recon_buildblock_ParallelprojHelper_h__

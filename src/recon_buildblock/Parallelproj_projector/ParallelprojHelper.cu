@@ -26,6 +26,8 @@
 #include "stir/num_threads.h"
 
 #include <cuda_runtime.h>
+#include <iostream>
+#include <fstream>
 
 START_NAMESPACE_STIR
 
@@ -41,31 +43,22 @@ copy_to_array(const BasicCoordinate<3, T>& c, std::array<T, 3>& a)
 
 detail::ParallelprojHelper::ParallelprojHelper(const ProjDataInfo& p_info, const DiscretisedDensity<3, float>& density)
 {
-  
-  cudaMallocManaged(&xstart, p_info.size_all() * 3 * sizeof(float));
-  cudaMallocManaged(&xend, p_info.size_all() * 3 * sizeof(float));
-
   auto& stir_image = dynamic_cast<const VoxelsOnCartesianGrid<float>&>(density);
 
   auto stir_voxel_size = stir_image.get_voxel_size();
-#ifndef NEWSCALE
-  // parallelproj projectors work in units of the voxel_size passed.
-  // STIR projectors have to be in pixel units, so convert the voxel-size
-  const float rescale = 1 / stir_voxel_size[3];
-#else
-  const float rescale = 1.F;
-#endif
 
   num_image_voxel = static_cast<long long>(stir_image.size_all());
   num_lors = static_cast<long long>(p_info.size_all()) / p_info.get_num_tof_poss();
 
-  sigma_tof = tof_delta_time_to_mm(p_info.get_scanner_sptr()->get_timing_resolution()) / 2.355 * rescale;
-  tofcenter_offset = 0.F * rescale;
-  Bin bin(0, 0, 0, 0, 0);
-  tofbin_width = p_info.get_sampling_in_k(bin) * rescale;
+  cudaMallocManaged(&xstart, num_lors * 3 * sizeof(float));
+  cudaMallocManaged(&xend, num_lors * 3 * sizeof(float));
+
+  sigma_tof = tof_delta_time_to_mm(p_info.get_scanner_sptr()->get_timing_resolution()) / 2.355;
+  tofcenter_offset = 0.F;
+  tofbin_width = p_info.get_sampling_in_k(Bin(0, 0, 0, 0, 0));
   num_tof_bins = p_info.get_num_tof_poss();
 
-  copy_to_array(stir_voxel_size * rescale, voxsize);
+  copy_to_array(stir_voxel_size, voxsize);
   copy_to_array(stir_image.get_lengths(), imgdim);
 
   BasicCoordinate<3, int> min_indices, max_indices;
@@ -73,7 +66,7 @@ detail::ParallelprojHelper::ParallelprojHelper(const ProjDataInfo& p_info, const
   auto coord_first_voxel = stir_image.get_physical_coordinates_for_indices(min_indices);
   // TODO origin shift get_LOR() uses the "centred w.r.t. gantry" coordinate system
   coord_first_voxel[1] -= (stir_image.get_min_index() + stir_image.get_max_index()) / 2.F * stir_voxel_size[1];
-  copy_to_array(coord_first_voxel * rescale, origin);
+  copy_to_array(coord_first_voxel, origin);
 
   // loop over all LORs in the projdata
   const float radius = p_info.get_scanner_sptr()->get_max_FOV_radius();
@@ -143,8 +136,8 @@ detail::ParallelprojHelper::ParallelprojHelper(const ProjDataInfo& p_info, const
                     }
                   else
                     {
-                      const auto p1 = lor_points.p1() * rescale;
-                      const auto p2 = lor_points.p2() * rescale;
+                      const auto p1 = lor_points.p1();
+                      const auto p2 = lor_points.p2();
                       CRITICALSECTION
                       {
                         ATOMICWRITE xstart[this_index] = p1[1];
@@ -160,6 +153,13 @@ detail::ParallelprojHelper::ParallelprojHelper(const ProjDataInfo& p_info, const
             }
         }
     }
+
+    // std::ofstream myfile;
+    // myfile.open("/workspace/stir-public-backup/start_and_end_points.txt");
+    // for (unsigned int lor = 0; lor < p_info.size_all(); lor++) {
+    //   myfile << xstart[3*lor] << ", " << xstart[3*lor + 1] << ", " << xstart[3*lor + 2] << ", " << xend[3*lor] << ", " << xend[3*lor + 1] << ", " << xend[3*lor + 2] << std::endl;
+    // }
+    // myfile.close();
 }
 
 END_NAMESPACE_STIR

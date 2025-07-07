@@ -30,11 +30,11 @@
 #include "stir/utilities.h"
 #include "stir/TOF_conversions.h"
 #include <algorithm>
-#ifdef parallelproj_built_with_CUDA
-#  include "parallelproj_cuda.h"
+#ifdef PARALLELPROJ_CUDA // parallelproj_built_with_CUDA
+// #  include "parallelproj_cuda.h"
+// #else
+#  include "parallelproj.h"
 #  include <cuda_runtime.h>
-#else
-#  include "parallelproj_c.h"
 #endif
 
 START_NAMESPACE_STIR
@@ -175,7 +175,7 @@ ForwardProjectorByBinParallelproj::set_input(const DiscretisedDensity<3, float>&
 
   info("Calling parallelproj forward", 2);
 
-#ifdef parallelproj_built_with_CUDA
+#ifdef PARALLELPROJ_CUDA // parallelproj_built_with_CUDA
 
   long long num_lors_per_chunk_floor
       = _helper->num_lors / _num_gpu_chunks; // num_lors=407, num_GPU_chunks = 10, --> num_lors_per_chunk_floor = 407/10 = 40
@@ -203,23 +203,23 @@ ForwardProjectorByBinParallelproj::set_input(const DiscretisedDensity<3, float>&
         {
 
           std::vector<float> mem_for_PP(num_lors_per_chunk * _helper->num_tof_bins);
-          joseph3d_fwd_tof_sino_cuda(_helper->xend + 3 * offset,
-                                     _helper->xstart + 3 * offset,
-                                     image_on_cuda_devices,
-                                     _helper->origin.data(),
-                                     _helper->voxsize.data(),
-                                     mem_for_PP.data(),  // this is where the data is written to
-                                     num_lors_per_chunk, // 41(40) , PP docu: "number of geometrical LORs";
-                                     _helper->imgdim.data(),
-                                     _helper->tofbin_width,
-                                     &_helper->sigma_tof,
-                                     &_helper->tofcenter_offset,
-                                     4,                     // float n_sigmas
-                                     _helper->num_tof_bins, // short n_tofbins
-                                     0,                     // unsigned char lor_dependent_sigma_tof
-                                     0,                     // unsigned char lor_dependent_tofcenter_offset
-                                     64                     // threadsperblock
-          );
+          // joseph3d_fwd_tof_sino_cuda(_helper->xend + 3 * offset,
+          //                            _helper->xstart + 3 * offset,
+          //                            image_on_cuda_devices,
+          //                            _helper->origin.data(),
+          //                            _helper->voxsize.data(),
+          //                            mem_for_PP.data(),  // this is where the data is written to
+          //                            num_lors_per_chunk, // 41(40) , PP docu: "number of geometrical LORs";
+          //                            _helper->imgdim.data(),
+          //                            _helper->tofbin_width,
+          //                            &_helper->sigma_tof,
+          //                            &_helper->tofcenter_offset,
+          //                            4,                     // float n_sigmas
+          //                            _helper->num_tof_bins, // short n_tofbins
+          //                            0,                     // unsigned char lor_dependent_sigma_tof
+          //                            0,                     // unsigned char lor_dependent_tofcenter_offset
+          //                            64                     // threadsperblock
+          // );
 
           float* STIR_mem = _projected_data_sptr->get_data_ptr();
 
@@ -243,18 +243,29 @@ ForwardProjectorByBinParallelproj::set_input(const DiscretisedDensity<3, float>&
             }
           cudaMemsetAsync(d_p, 0, proj_bytes_dev);
 
-          joseph3d_fwd_cuda_new(_helper->xstart + 3 * offset,
-                                _helper->xend + 3 * offset,
-                                image_on_cuda_devices[0],
-                                _helper->origin.data(),
-                                _helper->voxsize.data(),
-                                d_p,
-                                num_lors_per_chunk,
-                                _helper->imgdim.data(),
-                                /*gpu_device_id*/ 0,
-                                /*threadsperblock*/ 64);
+          // joseph3d_fwd_cuda_new(_helper->xstart + 3 * offset,
+          //                       _helper->xend + 3 * offset,
+          //                       image_on_cuda_devices[0],
+          //                       _helper->origin.data(),
+          //                       _helper->voxsize.data(),
+          //                       d_p,
+          //                       num_lors_per_chunk,
+          //                       _helper->imgdim.data(),
+          //                       /*gpu_device_id*/ 0,
+          //                       /*threadsperblock*/ 64);
+          joseph3d_fwd(_helper->xstart + 3 * offset,
+                        _helper->xend + 3 * offset,
+                        image_on_cuda_devices[0],
+                        _helper->origin.data(),
+                        _helper->voxsize.data(),
+                        d_p,
+                        _helper->num_image_voxel,
+                        num_lors_per_chunk,
+                        _helper->imgdim.data(),
+                        /*gpu_device_id*/ 0,
+                        /*threadsperblock*/ 64);
 
-          // use pinned memory for projetion host array which speeds up memory transfer
+          // use pinned memory for projection host array which speeds up memory transfer
           auto h_p = _projected_data_sptr->get_data_ptr();
           cudaHostRegister(h_p + offset, proj_bytes_dev, cudaHostRegisterDefault);
 
@@ -281,35 +292,36 @@ ForwardProjectorByBinParallelproj::set_input(const DiscretisedDensity<3, float>&
     {
 
       std::vector<float> mem_for_PP(_helper->num_lors * _helper->num_tof_bins);
-      joseph3d_fwd_tof_sino(_helper->xend.data(),
-                            _helper->xstart.data(),
-                            image_ptr,
-                            _helper->origin.data(),
-                            _helper->voxsize.data(),
-                            mem_for_PP.data(),
-                            _helper->num_lors,
-                            _helper->imgdim.data(),
-                            _helper->tofbin_width,
-                            &_helper->sigma_tof,
-                            &_helper->tofcenter_offset,
-                            4, // float n_sigmas,
-                            _helper->num_tof_bins,
-                            0, //  unsigned char lor_dependent_sigma_tof
-                            0  // unsigned char lor_dependent_tofcenter_offset
-      );
+      // joseph3d_fwd_tof_sino(_helper->xend.data(),
+      //                       _helper->xstart.data(),
+      //                       image_ptr,
+      //                       _helper->origin.data(),
+      //                       _helper->voxsize.data(),
+      //                       mem_for_PP.data(),
+      //                       _helper->num_lors,
+      //                       _helper->imgdim.data(),
+      //                       _helper->tofbin_width,
+      //                       &_helper->sigma_tof,
+      //                       &_helper->tofcenter_offset,
+      //                       4, // float n_sigmas,
+      //                       _helper->num_tof_bins,
+      //                       0, //  unsigned char lor_dependent_sigma_tof
+      //                       0  // unsigned char lor_dependent_tofcenter_offset
+      // );
 
       float* STIR_mem = _projected_data_sptr->get_data_ptr();
       TOF_transpose(STIR_mem, mem_for_PP, _helper, 0, _helper->num_lors);
     }
   else
     {
-      joseph3d_fwd(_helper->xstart.data(),
-                   _helper->xend.data(),
+      joseph3d_fwd(_helper->xstart,
+                   _helper->xend,
                    image_ptr,
                    _helper->origin.data(),
                    _helper->voxsize.data(),
                    _projected_data_sptr->get_data_ptr(),
-                   static_cast<long long>(_projected_data_sptr->get_proj_data_info_sptr()->size_all()),
+                   _helper->num_image_voxel,
+                   _helper->num_lors,
                    _helper->imgdim.data());
     }
 #endif

@@ -221,15 +221,15 @@ endif()
 
 # Parallelproj
 if(NOT DISABLE_Parallelproj_PROJECTOR)
-    find_package(parallelproj 1.3.4 CONFIG)
+    find_package(parallelproj 0.0.0 CONFIG)
     if (parallelproj_FOUND)
       set(STIR_WITH_Parallelproj_PROJECTOR ON)
-      if (parallelproj_built_with_CUDA)
+      if (PARALLELPROJ_CUDA)
         message(STATUS "Found parallelproj ${parallelproj_VERSION} (will use its CUDA support)")
       else()
         message(STATUS "Found parallelproj ${parallelproj_VERSION} (but using its OpenMP version as it wasn't built with CUDA)")
       endif()
-      if (parallelproj_VERSION VERSION_LESS 1.0.1)
+      if (parallelproj_VERSION VERSION_LESS 0.0.0)
         message(STATUS "If the above parallelproj info looks incorrect, upgrade it to at least 1.0.1 (but 1.2.13 or later is recommended)")
       endif()
     endif()
@@ -267,7 +267,6 @@ WRITE_BASIC_PACKAGE_VERSION_FILE(${CMAKE_CURRENT_BINARY_DIR}/STIRConfigVersion.c
 # Set STIR_INCLUDE_DIRS before exporting such that it will refer to
 # the installed files, not the source.
 set (STIR_INCLUDE_DIRS "${STIR_INCLUDE_INSTALL_DIR}")
-
 
 # Older CMake cannot import or export object libraries. So we have to export
 # the sources and tell the user to explicitly use STIR_REGISTRIES.
