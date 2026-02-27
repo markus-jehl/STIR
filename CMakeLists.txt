@@ -15,6 +15,8 @@ if(CCACHE_PROGRAM)
 endif()
 
 
+include(CMakePrintHelpers)
+
 PROJECT(STIR)
 
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -52,11 +54,16 @@ else()
    message(WARNING "CMAKE_CXX_COMPILER_ID is not set. We are therefore not able to set some options.")
 endif()
 
+IF(MSVC)
+   # On Windows, when using ninja to build with CL, we add the following explicitly
+   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
+ENDIF()
+
 ####### Set Version number etc
 set(VERSION_MAJOR   6)
-set(VERSION_MINOR   2)
+set(VERSION_MINOR   4)
 set(VERSION_PATCH   0)
-set(VERSION   060200) # only used in STIRConfig.h.in and swig/CMakeLists.txt
+set(VERSION   060400) # only used in STIRConfig.h.in and swig/CMakeLists.txt
 
 set(STIR_VERSION
   ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
@@ -105,6 +112,23 @@ option(DISABLE_Parallelproj_PROJECTOR "disable use of Parallelproj projector" OF
 OPTION(DOWNLOAD_ZENODO_TEST_DATA "download zenodo data for tests" OFF)
 option(DISABLE_UPENN "disable use of UPENN filetypes" OFF)
 
+find_package(Git QUIET)
+if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
+# Update submodules as needed
+    option(GIT_SUBMODULE "Check submodules during build" ON)
+    if(GIT_SUBMODULE)
+        message(STATUS "Submodule update")
+        execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
+                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                        RESULT_VARIABLE GIT_SUBMOD_RESULT)
+        if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+            message(FATAL_ERROR "git submodule update --init --recursive failed with ${GIT_SUBMOD_RESULT}, please checkout submodules")
+        endif()
+    endif()
+endif()
+
+include(CheckCXXSourceCompiles)
+
 
 if(NOT DISABLE_ITK)
    # See if we can find a compiled version of ITK (http://www.itk.org/)
@@ -131,6 +155,21 @@ endif()
 
 if(NOT DISABLE_HDF5)
   find_package(HDF5 COMPONENTS CXX)
+  if (TARGET HDF5::HDF5)
+    option(USE_HDF5_TARGET "Use HDF5::HDF5 CMake target for dependencies (recommended)" ON)
+    mark_as_advanced(USE_HDF5_TARGET)
+    # Depend on both HDF5::HDF5 (i.e. all libs just found), and hdf5::hdf5_cpp
+    # (i.e. C++ libs and dependencies). Only the latter should be necessary, but
+    # we need the former due to https://gitlab.kitware.com/cmake/cmake/-/issues/27379
+    set(HDF5_TARGET HDF5::HDF5;hdf5::hdf5_cpp)
+    if (HDF5_FIND_DEBUG) # debugging print (re-use name of FindHDF5 CMake variable)
+      cmake_print_properties(
+        TARGETS HDF5::HDF5
+        PROPERTIES LOCATION INTERFACE_INCLUDE_DIRECTORIES IMPORTED_LINK_INTERFACE_LIBRARIES IMPORTED_LINK_DEPENDENT_LIBRARIES INTERFACE_LINK_LIBRARIES
+        )
+    endif()
+  endif()
+
 endif()
 
 if(NOT DISABLE_NLOHMANN_JSON)
@@ -201,7 +240,9 @@ if(NOT DISABLE_STIR_CUDA)
       if("${CMAKE_VERSION}" VERSION_LESS "3.23")
         message(FATAL_ERROR "CMake 3.23 or newer is required to use CMAKE_CUDA_ARCHITECTURES set to 'all'. Upgrade your CMake or set DISABLE_STIR_CUDA to ON.")
       else()
-        set(CMAKE_CUDA_ARCHITECTURES "all")
+        if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
+          set(CMAKE_CUDA_ARCHITECTURES "all")
+        endif()
       endif()
       message(STATUS "STIR CUDA support enabled. Using CUDA version ${CUDAToolkit_VERSION}.")
       set(STIR_WITH_CUDA ON)
@@ -243,6 +284,7 @@ endif()
 #### enable support for ctest
 ENABLE_TESTING()
 
+ADD_SUBDIRECTORY(external_helpers) # git submodules that STIR requires
 ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(scripts)
 

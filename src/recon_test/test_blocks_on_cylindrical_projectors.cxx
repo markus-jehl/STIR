@@ -195,7 +195,7 @@ BlocksTests::run_symmetry_test(ForwardProjectorByBin& forw_projector1, ForwardPr
   shared_ptr<DiscretisedDensity<3, float>> image1_sptr(image.clone());
   write_to_file("image_for", *image1_sptr);
 
-  image = *image.get_empty_copy();
+  image.fill(0);
   for (int i = 15; i < 360; i += 30)
     {
       theta2 = i * _PI / 180;
@@ -229,7 +229,7 @@ BlocksTests::run_symmetry_test(ForwardProjectorByBin& forw_projector1, ForwardPr
   proj_data_info_blocks_sptr = set_direct_projdata_info<ProjDataInfoBlocksOnCylindricalNoArcCorr>(scannerBlocks_sptr, 2);
   //    now forward-project images
 
-  // info(boost::format("Test blocks on Cylindrical: Forward projector used: %1%") % forw_projector1.parameter_info());
+  // info(format("Test blocks on Cylindrical: Forward projector used: {}", forw_projector1.parameter_info()));
 
   forw_projector1.set_up(proj_data_info_blocks_sptr, image1_sptr);
 
@@ -307,7 +307,8 @@ BlocksTests::run_plane_symmetry_test(ForwardProjectorByBin& forw_projector1, For
 
   //    rotate by 30 degrees
   phi2 = 30 * _PI / 180;
-  VoxelsOnCartesianGrid<float> image2 = *image.get_empty_copy();
+  VoxelsOnCartesianGrid<float> image2(image);
+  image2.fill(0);
   const Array<2, float> direction2 = make_array(make_1d_array(1.F, 0.F, 0.F),
                                                 make_1d_array(0.F, cos(float(_PI) - phi2), sin(float(_PI) - phi2)),
                                                 make_1d_array(0.F, -sin(float(_PI) - phi2), cos(float(_PI) - phi2)));
@@ -347,7 +348,7 @@ BlocksTests::run_plane_symmetry_test(ForwardProjectorByBin& forw_projector1, For
   shared_ptr<DiscretisedDensity<3, float>> image2_sptr(image2.clone());
   write_to_file("plane30", *image2_sptr);
 
-  // info(boost::format("Test blocks on Cylindrical: Forward projector used: %1%") % forw_projector1.parameter_info());
+  // info(format("Test blocks on Cylindrical: Forward projector used: {}", forw_projector1.parameter_info()));
 
   forw_projector1.set_up(proj_data_info_blocks_sptr, image_sptr);
 
@@ -508,7 +509,7 @@ BlocksTests::run_axial_projection_test(ForwardProjectorByBin& forw_projector, Ba
   shared_ptr<DiscretisedDensity<3, float>> bck_proj_image_sptr(image.clone());
   write_to_file("axial_test", *image_sptr);
 
-  // info(boost::format("Test blocks on Cylindrical: Forward projector used: %1%") % forw_projector.parameter_info());
+  // info(format("Test blocks on Cylindrical: Forward projector used: {}", forw_projector.parameter_info()));
 
   forw_projector.set_up(proj_data_info_blocks_sptr, image_sptr);
   back_projector.set_up(proj_data_info_blocks_sptr, bck_proj_image_sptr);
@@ -591,7 +592,7 @@ BlocksTests::run_map_orientation_test(ForwardProjectorByBin& forw_projector1, Fo
   shared_ptr<DiscretisedDensity<3, float>> image1_sptr(image.clone());
   write_to_file("image_to_fwp", *image1_sptr);
 
-  image = *image.get_empty_copy();
+  image.fill(0);
 
   shared_ptr<const DetectorCoordinateMap> map_sptr;
   auto scannerBlocks_sptr = std::make_shared<Scanner>(Scanner::SAFIRDualRingPrototype);
@@ -639,7 +640,7 @@ BlocksTests::run_map_orientation_test(ForwardProjectorByBin& forw_projector1, Fo
   proj_data_info_blocks_reord_sptr = set_direct_projdata_info<ProjDataInfoGenericNoArcCorr>(scannerBlocks_reord_sptr, 4);
 
   //    now forward-project images
-  // info(boost::format("Test blocks on Cylindrical: Forward projector used: %1%") % forw_projector1.parameter_info());
+  // info(format("Test blocks on Cylindrical: Forward projector used: {}", forw_projector1.parameter_info()));
   auto projdata1 = std::make_shared<ProjDataInMemory>(exam_info_sptr, proj_data_info_blocks_sptr);
   forw_projector1.set_up(proj_data_info_blocks_sptr, image1_sptr);
   forw_projector1.forward_project(*projdata1, *image1_sptr);
@@ -700,7 +701,7 @@ BlocksTests::run_projection_test(ForwardProjectorByBin& forw_projector1, Forward
   shared_ptr<DiscretisedDensity<3, float>> image1_sptr(image.clone());
   write_to_file("image_with_voxel_at_30_0", *image1_sptr);
 
-  image = *image.get_empty_copy();
+  image.fill(0);
   image[(image.get_min_index() + image.get_max_index()) / 2 * grid_spacing.z()][0][-25] = 1;
 
   shared_ptr<DiscretisedDensity<3, float>> image2_sptr(image.clone());
@@ -723,7 +724,7 @@ BlocksTests::run_projection_test(ForwardProjectorByBin& forw_projector1, Forward
   proj_data_info_blocks_sptr = set_blocks_projdata_info<ProjDataInfoBlocksOnCylindricalNoArcCorr>(scannerBlocks_sptr);
 
   //    now forward-project images
-  // info(boost::format("Test blocks on Cylindrical: Forward projector used: %1%") % forw_projector1.parameter_info());
+  // info(format("Test blocks on Cylindrical: Forward projector used: {}", forw_projector1.parameter_info()));
 
   forw_projector1.set_up(proj_data_info_blocks_sptr, image1_sptr);
   auto projdata1 = std::make_shared<ProjDataInterfile>(

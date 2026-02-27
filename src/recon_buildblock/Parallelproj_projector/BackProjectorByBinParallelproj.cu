@@ -134,11 +134,20 @@ TOF_transpose(std::vector<float>& mem_for_PP_back,
 void
 BackProjectorByBinParallelproj::get_output(DiscretisedDensity<3, float>& density) const
 {
+  {
+    std::string explanation;
+    if (!_density_sptr->has_same_characteristics(density, explanation))
+      {
+        error("BackProjectorByBinParallelproj::get_output: output image has different charachteristics from what was used for "
+              "set_up:\n"
+              + explanation);
+      }
+  }
   std::vector<float> image_vec;
   float* image_ptr;
-  if (_density_sptr->is_contiguous())
+  if (density.is_contiguous())
     {
-      image_ptr = _density_sptr->get_full_data_ptr();
+      image_ptr = density.get_full_data_ptr();
     }
   else
     {
@@ -176,7 +185,7 @@ BackProjectorByBinParallelproj::get_output(DiscretisedDensity<3, float>& density
         }
       if (p.get_proj_data_info_sptr()->is_tof_data())
         {
-          info("running the CUDA version of parallelproj, about to call function joseph3d_back_tof_sino_cuda", 2);
+          info("running the CUDA version of parallelproj, about to call function joseph3d_back_tof_sino_cuda for one chunk", 2);
 
           std::vector<float> mem_for_PP_back(num_lors_per_chunk * _helper->num_tof_bins);
           const float* STIR_mem = p.get_const_data_ptr();
@@ -243,13 +252,14 @@ BackProjectorByBinParallelproj::get_output(DiscretisedDensity<3, float>& density
                         _helper->origin.data(),
                         _helper->voxsize.data(),
                         d_p,
-                        _helper->num_image_voxel,
+                        // _helper->num_image_voxel,
                         num_lors_per_chunk,
                         _helper->imgdim.data());
 
           // deallocate memory on device
           cudaFree(d_p);
         }
+      info("done", 2);
       offset += num_lors_per_chunk;
     }
 
@@ -263,6 +273,7 @@ BackProjectorByBinParallelproj::get_output(DiscretisedDensity<3, float>& density
   free_float_array_on_all_devices(image_on_cuda_devices);
 
 #else
+  info("Calling parallelproj backprojector (CPU)", 2);
   if (this->_proj_data_info_sptr->is_tof_data() == 1)
     {
       std::vector<float> mem_for_PP_back(_helper->num_lors * _helper->num_tof_bins);
@@ -301,16 +312,16 @@ BackProjectorByBinParallelproj::get_output(DiscretisedDensity<3, float>& density
                     _helper->imgdim.data());
     }
 #endif
-  info("done", 2);
+  info("PP backprojecting done. Finishing up", 2);
 
   // p.release_const_data_ptr();
 
   // --------------------------------------------------------------- //
   //   Parallelproj -> STIR image conversion
   // --------------------------------------------------------------- //
-  if (_density_sptr->is_contiguous())
+  if (density.is_contiguous())
     {
-      _density_sptr->release_full_data_ptr();
+      density.release_full_data_ptr();
     }
   else
     {

@@ -26,9 +26,6 @@
   \author Ashley Gillman
   \author (help from Alexey Zverovich)
   \author PARAPET project
-
-
-
 */
 
 #include "stir/CartesianCoordinate3D.h"
@@ -38,6 +35,13 @@
 #include <string>
 
 START_NAMESPACE_STIR
+
+#ifdef SWIG
+// SWIG doesn't seem to understand how we define ArrayType (with `using`).
+// Do a HORRIBLE work-around for now. It will fail whenever we change ArrayType of course.
+// TODO
+#  define ArrayType Array
+#endif
 
 /*!
   \ingroup densitydata
@@ -90,18 +94,15 @@ START_NAMESPACE_STIR
   hierarchy as shown in the class diagram.
 
 */
-
 template <int num_dimensions, typename elemT>
-class DiscretisedDensity : public ExamData, public Array<num_dimensions, elemT>
+class DiscretisedDensity : public ExamData, public ArrayType<num_dimensions, elemT>
 {
-#ifdef SWIG
+#ifdef STIR_COMPILING_SWIG_WRAPPER
   // work-around swig problem. It gets confused when using a private (or protected)
   // typedef in a definition of a public typedef/member
- public:
-#else
-private:
+public:
 #endif
-  typedef Array<num_dimensions, elemT> base_type;
+  typedef ArrayType<num_dimensions, elemT> base_type;
   typedef DiscretisedDensity<num_dimensions, elemT> self_type;
 
 public:
@@ -308,6 +309,12 @@ private:
   static inline CartesianCoordinate3D<float> swap_axes_based_on_orientation(const CartesianCoordinate3D<float>& coordinates,
                                                                             const PatientPosition patient_position);
 };
+
+#ifdef SWIG
+// Undo HORRIBLE work-around.
+// TODO
+#  undef ArrayType
+#endif
 
 END_NAMESPACE_STIR
 

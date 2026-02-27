@@ -42,7 +42,7 @@
 #include <iostream>
 #include <algorithm>
 #include <sstream>
-#include <boost/format.hpp>
+#include "stir/format.h"
 #include "stir/warning.h"
 #include "stir/error.h"
 
@@ -467,6 +467,36 @@ Scanner::Scanner(Type scanner_type)
                  10,
                  21, // n axial/trans xtals per singles unit
                  1,  // n detector layers
+                 // energy
+                 0.F,
+                 511.F,
+                 33 * 8,      // max n timing position
+                 143.231 / 8, // timing position bin size
+                 214.F        // timing resolution
+      );
+      break;
+
+    case Siemens_Quadra:
+      // Info from Prenosil et al., J Nucl Med 2022; 63(3):476-484, DOI: 10.2967/jnumed.121.261972
+      set_params(Siemens_Quadra,                                  // type
+                 string_list("Siemens Quadra", "Quadra", "1232"), // names
+                 323,                                             // rings, because of the max ring difference is 322
+                 520,                                             // max n non-arc-corr bins
+                 520,                                             // default n arc-corr bins
+                 (20 + 1) * 38,                                   // num detector per ring
+                 410.0F,                                          // inner ring radius (mm)
+                 7.0F,                                            // unsure on this                          // avg DoI (mm)
+                 3.29114F,                                        // ring spacing (mm)
+                 1.6F,                                            // bin size (mm)
+                 0.0F,                                            // intrinsic tilt
+                 // ONLY used for CTI scanners for normalisation. These values will be ignored here.
+                 4,
+                 1, // n axial/trans blocks per bucket
+                 10 * 8 + 1,
+                 20 + 1, // n axial/trans xtals per block
+                 0,
+                 0, // n axial/trans xtals per singles unit
+                 1, // n detector layers
                  // energy
                  0.F,
                  511.F,
@@ -1608,6 +1638,7 @@ Scanner::get_num_virtual_axial_crystals_per_block() const
     {
     case E1080:
     case Siemens_mCT:
+    case Siemens_Quadra:
       return 1;
     default:
       return 0;
@@ -1624,6 +1655,7 @@ Scanner::get_num_virtual_transaxial_crystals_per_block() const
     case E1080:
     case Siemens_mCT:
     case Siemens_Vision_600:
+    case Siemens_Quadra:
     case Siemens_mMR:
     case UPENN_5rings:
     case UPENN_6rings:
@@ -1789,19 +1821,22 @@ Scanner::check_consistency() const
     { //! Check consistency of axial and transaxial spacing for block geometry
       if (get_num_axial_buckets() != 1)
         {
-          warning(boost::format("BlocksOnCylindrical num_axial_buckets (%d) is greater than 1. This is not supported yet. "
-                                "Consider multiplying the number of axial_blocks_per_bucket by %d.")
-                  % get_num_axial_buckets() % get_num_axial_buckets());
+          warning(format("BlocksOnCylindrical num_axial_buckets ({}) is greater than 1. This is not supported yet. "
+                         "Consider multiplying the number of axial_blocks_per_bucket by {}.",
+                         get_num_axial_buckets(),
+                         get_num_axial_buckets()));
           return Succeeded::no;
         }
       { // Assert that each block contains an equal number of axial crystals
         if (get_num_rings() % get_num_axial_crystals_per_bucket() != 0)
           {
-            warning(boost::format("Error in GeometryBlocksOnCylindrical: number of rings (%d) is not a multiple of the "
-                                  "get_num_axial_crystals_per_bucket "
-                                  "(%d) = num_axial_crystals_per_block (%d) * num_axial_blocks_per_bucket (%d)")
-                    % get_num_rings() % get_num_axial_crystals_per_bucket() % get_num_axial_crystals_per_block()
-                    % get_num_axial_blocks_per_bucket());
+            warning(format("Error in GeometryBlocksOnCylindrical: number of rings ({}) is not a multiple of the "
+                           "get_num_axial_crystals_per_bucket "
+                           "({}) = num_axial_crystals_per_block ({}) * num_axial_blocks_per_bucket ({})",
+                           get_num_rings(),
+                           get_num_axial_crystals_per_bucket(),
+                           get_num_axial_crystals_per_block(),
+                           get_num_axial_blocks_per_bucket()));
           }
       }
       if (get_axial_crystal_spacing() * get_num_axial_crystals_per_block() > get_axial_block_spacing())

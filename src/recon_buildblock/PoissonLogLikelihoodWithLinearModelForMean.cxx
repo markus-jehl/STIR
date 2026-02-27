@@ -28,8 +28,9 @@
 #include "stir/modelling/KineticParameters.h"
 #include "stir/info.h"
 #include "stir/error.h"
-#include "boost/format.hpp"
+#include "stir/format.h"
 #include "boost/lexical_cast.hpp"
+#include "boost/format.hpp"
 
 using std::string;
 
@@ -66,7 +67,8 @@ PoissonLogLikelihoodWithLinearModelForMean<TargetT>::post_processing()
 {
   if (base_type::post_processing() == true)
     return true;
-
+  // call set, which will do some checks
+  this->set_subsensitivity_filenames(this->subsensitivity_filenames);
   return false;
 }
 
@@ -85,6 +87,19 @@ PoissonLogLikelihoodWithLinearModelForMean<TargetT>::get_subsensitivity_filename
 }
 
 template <typename TargetT>
+std::string
+PoissonLogLikelihoodWithLinearModelForMean<TargetT>::get_subsensitivity_filename(const int subset_num) const
+{
+  if (this->subsensitivity_filenames.empty())
+    return this->subsensitivity_filenames;
+
+  if (this->subsensitivity_filenames.find("%") != std::string::npos)
+    return boost::str(boost::format(this->subsensitivity_filenames) % subset_num);
+  else
+    return runtime_format(this->subsensitivity_filenames, subset_num);
+}
+
+template <typename TargetT>
 void
 PoissonLogLikelihoodWithLinearModelForMean<TargetT>::set_sensitivity_filename(const std::string& filename)
 {
@@ -100,13 +115,19 @@ PoissonLogLikelihoodWithLinearModelForMean<TargetT>::set_subsensitivity_filename
   this->subsensitivity_filenames = filenames;
   try
     {
-      const std::string test_sensitivity_filename = boost::str(boost::format(this->subsensitivity_filenames) % 0);
+      if (this->subsensitivity_filenames.find("%") != std::string::npos)
+        {
+          warning("The subsensitivity_filenames pattern is using the boost::format convention ('%%d')."
+                  "It is recommended to use fmt::format/std::format style formatting ('{}').");
+        }
+      const std::string test_sensitivity_filename = this->get_subsensitivity_filename(0);
     }
   catch (std::exception& e)
     {
-      error("argument %s to set_subsensitivity_filenames is invalid (see boost::format documentation)\n. Error message: %s",
-            filenames.c_str(),
-            e.what());
+      error(format("argument {} to set_subsensitivity_filenames is invalid (see fmt::format or boost::format documentation)\n. "
+                   "Error message: {}",
+                   filenames.c_str(),
+                   e.what()));
     }
 }
 
@@ -214,25 +235,25 @@ PoissonLogLikelihoodWithLinearModelForMean<TargetT>::set_up(shared_ptr<TargetT> 
                   // read subsensitivies
                   for (int subset = 0; subset < this->get_num_subsets(); ++subset)
                     {
-                      std::string current_sensitivity_filename;
-                      try
+                      const std::string current_sensitivity_filename = this->get_subsensitivity_filename(subset);
+
+                      if (subset > 0)
                         {
-                          current_sensitivity_filename = boost::str(boost::format(this->subsensitivity_filenames) % subset);
+                          if (current_sensitivity_filename == this->get_subsensitivity_filename(0))
+                            {
+                              error(format(
+                                  "subset sensitivity filename pattern should lead to a different filename for every subset,"
+                                  "but seems to always give '{}'",
+                                  current_sensitivity_filename));
+                            }
                         }
-                      catch (std::exception& e)
-                        {
-                          error(boost::format("Error using 'subset sensitivity filenames' pattern (which is set to '%1%'). "
-                                              "Check syntax for boost::format. Error is:\n%2%")
-                                % this->subsensitivity_filenames % e.what());
-                          return Succeeded::no;
-                        }
-                      info(boost::format("Reading sensitivity from '%1%'") % current_sensitivity_filename);
+                      info(format("Reading sensitivity from '{}'", current_sensitivity_filename));
 
                       this->subsensitivity_sptrs[subset] = read_from_file<TargetT>(current_sensitivity_filename);
                       string explanation;
                       if (!target_sptr->has_same_characteristics(*this->subsensitivity_sptrs[subset], explanation))
                         {
-                          error("sensitivity and target should have the same characteristics.\n%s", explanation.c_str());
+                          error("sensitivity and target should have the same characteristics.\n" + explanation);
                           return Succeeded::no;
                         }
                     }
@@ -246,7 +267,7 @@ PoissonLogLikelihoodWithLinearModelForMean<TargetT>::set_up(shared_ptr<TargetT> 
                     }
                   // reading single sensitivity
                   const std::string current_sensitivity_filename = this->sensitivity_filename;
-                  info(boost::format("Reading sensitivity from '%1%'") % current_sensitivity_filename);
+                  info(format("Reading sensitivity from '{}'", current_sensitivity_filename));
 
                   this->sensitivity_sptr = read_from_file<TargetT>(current_sensitivity_filename);
                   string explanation;
@@ -301,9 +322,8 @@ PoissonLogLikelihoodWithLinearModelForMean<TargetT>::set_up(shared_ptr<TargetT> 
                 {
                   for (int subset = 0; subset < this->get_num_subsets(); ++subset)
                     {
-                      const std::string current_sensitivity_filename
-                          = boost::str(boost::format(this->subsensitivity_filenames) % subset);
-                      info(boost::format("Writing sensitivity to '%1%'") % current_sensitivity_filename);
+                      const std::string current_sensitivity_filename = this->get_subsensitivity_filename(subset);
+                      info(format("Writing sensitivity to '{}'", current_sensitivity_filename));
                       write_to_file(current_sensitivity_filename, this->get_subset_sensitivity(subset));
                     }
                 }
@@ -313,7 +333,7 @@ PoissonLogLikelihoodWithLinearModelForMean<TargetT>::set_up(shared_ptr<TargetT> 
               if (this->sensitivity_filename.size() != 0)
                 {
                   const std::string current_sensitivity_filename = this->sensitivity_filename;
-                  info(boost::format("Writing sensitivity to '%1%'") % current_sensitivity_filename);
+                  info(format("Writing sensitivity to '{}'", current_sensitivity_filename));
                   write_to_file(current_sensitivity_filename, this->get_sensitivity());
                 }
             }
